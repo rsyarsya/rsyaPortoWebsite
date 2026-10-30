@@ -16,6 +16,10 @@ let rafId = 0;
 // preempts and is never dropped.
 let isResolving = false;
 let pendingHash: string | null = null;
+// The URL hash is landed once per page load (direct load / cross-page link).
+// Later re-inits (Animation setting, OS reduced motion, resizing back across
+// 768px) must keep the reader where they are, not jump back to the hash.
+let initialHashHandled = false;
 
 // --- Media queries for eligibility (desktop-class, not-mobile). ------------
 const pointerFine = matchMedia('(pointer: fine)');
@@ -96,7 +100,10 @@ function onAnchorClick(event: MouseEvent): void {
   if (!validTarget(hash)) return; // Unknown target — let the browser handle it.
 
   event.preventDefault(); // Suppress native jump so it can't fight Lenis.
-  history.pushState({}, '', hash); // preventDefault suppressed the hash write.
+  // preventDefault suppressed the hash write. Like native same-fragment
+  // navigation, re-clicking the current hash replaces the entry.
+  if (hash === location.hash) history.replaceState(history.state, '', hash);
+  else history.pushState({}, '', hash);
   // Skip-to-content (#main) must be prompt, not a long glide.
   resolveHash(hash, hash === '#main');
 }
@@ -134,13 +141,20 @@ function init(): void {
       wheelMultiplier: 1,
       // We own anchors/history/focus ourselves for CSS-offset + a11y focus.
       anchors: false,
+      // html[data-motion] already folds in OS reduced motion (System) and the
+      // explicit On/Off choice; Lenis only exists while it is 'full', so its
+      // own media-query check would only override an explicit On.
+      respectReducedMotion: false,
     });
     rafId = requestAnimationFrame(raf);
     document.addEventListener('click', onAnchorClick);
     addEventListener('hashchange', onHashChange);
     addEventListener('popstate', onPopState);
-    // Land an initial hash (direct load / cross-page) after layout settles.
-    if (location.hash && validTarget(location.hash)) {
+    // Land an initial hash (direct load / cross-page) after layout settles,
+    // only on the first init of this page load.
+    const landInitialHash = !initialHashHandled;
+    initialHashHandled = true;
+    if (landInitialHash && location.hash && validTarget(location.hash)) {
       requestAnimationFrame(() => resolveHash(location.hash, true));
     }
   } catch (error) {

@@ -77,6 +77,8 @@ import Icon from '../components/ui/Icon.astro';
   label span { color: var(--color-text-muted); font-size: 13px; font-weight: 400; }
   input, textarea { width: 100%; min-height: 44px; border: 1px solid var(--color-border-interactive); border-radius: 8px; padding: 10px 12px; background: var(--color-bg); color: var(--color-text); font: 16px/1.5 var(--font-sans); }
   textarea { resize: vertical; }
+  /* Lenis skips this field (data-lenis-prevent) and lenis.css contains its overscroll; let the wheel continue to the page when it is empty or at its end. */
+  #guest-message { overscroll-behavior: auto; }
   .entries { margin-top: 40px; }
   .entries-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 12px; color: var(--color-muted); }
   .entries-heading h2 { font: 400 15px/1.5 var(--font-sans); letter-spacing: 0; }

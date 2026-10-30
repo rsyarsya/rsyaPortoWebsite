@@ -19,7 +19,7 @@ for (const day of snapshot.days) {
 <section id="contributions" aria-labelledby="contributions-title">
   <div class="activity-heading"><SectionHeading id="contributions-title" title="Contributions" /><a href={profile.github}>@{snapshot.username}</a></div>
   <p class="activity-total"><strong>{snapshot.total.toLocaleString('en')}</strong> contributions in the past year</p>
-  <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar. Scroll horizontally to explore the year." data-lenis-prevent>
+  <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar. Scroll horizontally to explore the year." data-lenis-prevent-horizontal>
     <svg viewBox={`0 0 ${width} 116`} width={width} height="116" role="img" aria-labelledby="calendar-title calendar-description">
       <title id="calendar-title">{snapshot.total} GitHub contributions, {formatDate(snapshot.from)} to {formatDate(snapshot.through)}</title>
       <desc id="calendar-description">Each square represents a day. Darker squares indicate more contributions. A monthly text summary is available below.</desc>
