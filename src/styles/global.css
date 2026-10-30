@@ -12,7 +12,7 @@ p { max-width: 65ch; }
 a { color: inherit; text-underline-offset: 4px; }
 a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 5px; border-radius: 2px; }
 ul { margin: 0; padding: 0; list-style: none; }
-section { scroll-margin-top: 104px; }
+section, #main { scroll-margin-top: 104px; }
 .section-stack { display: grid; gap: var(--section-gap); padding-bottom: var(--section-gap); }
 .muted { color: var(--color-muted); }
 .metadata { color: var(--color-muted); font-size: 14px; }
@@ -29,7 +29,7 @@ section { scroll-margin-top: 104px; }
   .placeholder-row { flex-direction: column; }
   .section-stack { padding-top: 48px; }
   body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
-  section { scroll-margin-top: 24px; }
+  section, #main { scroll-margin-top: 24px; }
 }
 @media (min-width: 768px) {
   h1 { font-size: 44px; }

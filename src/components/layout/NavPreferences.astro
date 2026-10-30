@@ -5,7 +5,7 @@ import Icon from '../ui/Icon.astro';
   <button type="button" class="theme-toggle icon-button" aria-label="Switch to dark theme" title="Toggle theme" aria-pressed="false"><Icon name="theme" /></button>
   <div class="settings-wrap">
     <button type="button" class="settings-toggle icon-button" aria-label="Display settings" aria-expanded="false" aria-controls="display-settings" title="Display settings"><Icon name="settings" /></button>
-    <div id="display-settings" class="settings-panel" hidden>
+    <div id="display-settings" class="settings-panel" hidden data-lenis-prevent>
       <fieldset><legend>Animation</legend>
         {['System', 'On', 'Off'].map(value => <label><input type="radio" name="motion" value={value.toLowerCase()} checked={value === 'System'} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
       </fieldset>

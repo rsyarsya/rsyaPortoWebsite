@@ -21,7 +21,7 @@ import Icon from '../components/ui/Icon.astro';
             <p id="preview-status">Form preview only. Nothing you type here is saved or sent.</p>
             <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="off" placeholder="Your name" maxlength="80" /></div>
             <div class="field"><label for="guest-site">Website <span>(optional)</span></label><input id="guest-site" type="url" inputmode="url" autocomplete="off" placeholder="https://your-website.com" maxlength="200" /></div>
-            <div class="field"><label for="guest-message">Message</label><textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000"></textarea></div>
+            <div class="field"><label for="guest-message">Message</label><textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000" data-lenis-prevent></textarea></div>
             <div class="form-actions"><button type="button" class="sign-in" disabled aria-describedby="preview-status">Sign guestbook</button><button type="button" class="cancel">Back</button></div>
           </div>
         </div>
