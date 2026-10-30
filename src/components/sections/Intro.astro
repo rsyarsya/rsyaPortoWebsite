@@ -25,14 +25,14 @@ import { profile } from '../../data/profile';
   .introduction { font-family: var(--font-serif); }
   .introduction p + p { margin-top: 16px; }
   .availability { display: flex; align-items: flex-start; gap: 10px; margin-top: 28px; font-size: 15px; line-height: 1.5; }
-  .availability-dot { flex: 0 0 7px; height: 7px; margin-top: 8px; border-radius: 50%; background: var(--color-focus); }
+  .availability-dot { flex: 0 0 7px; height: 7px; margin-top: 8px; border-radius: 50%; background: var(--color-accent); }
   .availability-detail { font-size: 14px; color: var(--color-muted); margin-top: 2px; }
   .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
   .hero-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid transparent; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; }
-  .primary { background: var(--color-text); color: var(--color-background); }
-  .primary:hover { background: var(--color-focus); }
+  .primary { background: var(--color-btn-primary-bg); color: var(--color-btn-primary-fg); }
+  .primary:hover { background: var(--color-btn-primary-hover-bg); }
   .secondary { border-color: var(--color-border); background: var(--color-surface); }
-  .secondary:hover { border-color: var(--color-muted); }
+  .secondary:hover { border-color: var(--color-border-interactive); }
   @media (max-width: 375px) {
     .hero-actions { gap: 8px; }
     .hero-action { padding-inline: 12px; }

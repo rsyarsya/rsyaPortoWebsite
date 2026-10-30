@@ -1,7 +1,7 @@
 @import './tokens.css';
 
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--color-background); scroll-behavior: auto; }
+html { background: var(--color-bg); scroll-behavior: auto; }
 body { margin: 0; color: var(--color-text); font-family: var(--font-sans); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, p { margin: 0; }
 h1, h2 { font-family: var(--font-serif); font-weight: 500; }
@@ -23,7 +23,7 @@ section { scroll-margin-top: 104px; }
 .placeholder-row p { margin-top: 4px; color: var(--color-muted); }
 .placeholder-row > .metadata { flex-shrink: 0; }
 .action-placeholders { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-.skip-link { position: fixed; top: 12px; left: 16px; z-index: 60; padding: 8px 16px; background: var(--color-background); transform: translateY(-160%); }
+.skip-link { position: fixed; top: 12px; left: 16px; z-index: 60; padding: 8px 16px; background: var(--color-bg); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); }
 @media (max-width: 767px) {
   .placeholder-row { flex-direction: column; }

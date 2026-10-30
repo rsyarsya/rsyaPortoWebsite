@@ -1,32 +1,86 @@
 :root {
-  color-scheme: light;
-  --color-background: #faf9f6;
-  --color-surface: #f0eee8;
-  --color-text: #292824;
-  --color-muted: #69665f;
-  --color-border: #dddad2;
-  --color-focus: #456657;
-  --color-nav: #f5f4ef;
+
+  /* ── Semantic color tokens ───────────────────────────────────────── */
+  --color-bg:               #FAF9F6;
+  --color-surface:          #F0EEE8;
+  --color-surface-hover:    #E8E6DE;
+  --color-text:             #292824;
+  --color-text-muted:       #69665F;
+  --color-border:           #DDDAD2;
+  --color-border-interactive: #B0ADA4;
+  --color-accent:           #456657;
+  --color-accent-fg:        #FAF9F6;
+  --color-focus:            #456657;
+
+  /* Primary button */
+  --color-btn-primary-bg:       #292824;
+  --color-btn-primary-fg:       #FAF9F6;
+  --color-btn-primary-hover-bg: #44433E;
+
+  /* Navbar */
+  --color-nav-bg:     rgba(250, 249, 246, 0.85);
+  --color-nav-border: #DDDAD2;
+
+  /* Contribution calendar */
+  --color-cal-0: #E8E6DE;
+  --color-cal-1: #B8CCBA;
+  --color-cal-2: #7EA88A;
+  --color-cal-3: #5A8068;
+  --color-cal-4: #456657;
+
+  /* ── Legacy aliases (keep while components reference them) ───────── */
+  --color-background: var(--color-bg);
+  --color-muted:      var(--color-text-muted);
+  --color-nav:        #F5F4EF;
+
+  /* ── Typography ─────────────────────────────────────────────────── */
   --font-serif: 'Source Serif 4', Georgia, serif;
-  --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  --font-sans:  'Source Sans 3', system-ui, sans-serif;
+
+  /* ── Layout ──────────────────────────────────────────────────────── */
   --content-width: 720px;
-  --page-gutter: 20px;
-  --section-gap: 48px;
-  --radius-panel: 12px;
+  --page-gutter:   20px;
+  --section-gap:   48px;
+  --radius-panel:  12px;
 }
 
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --color-background: #252521;
-  --color-surface: #30302b;
-  --color-text: #f0efeb;
-  --color-muted: #b5b3a8;
-  --color-border: #41413a;
-  --color-focus: #a6c5ac;
-  --color-nav: #2c2c27;
+[data-theme='dark'] {
+
+  --color-bg:               #242420;
+  --color-surface:          #2D2D28;
+  --color-surface-hover:    #363630;
+  --color-text:             #F1EFE8;
+  --color-text-muted:       #B7B4A9;
+  --color-border:           #43433B;
+  --color-border-interactive: #6B6860;
+  --color-accent:           #A8BDA0;
+  --color-accent-fg:        #242420;
+  --color-focus:            #A8BDA0;
+
+  /* Primary button */
+  --color-btn-primary-bg:       #F1EFE8;
+  --color-btn-primary-fg:       #242420;
+  --color-btn-primary-hover-bg: #D8D5CC;
+
+  /* Navbar */
+  --color-nav-bg:     rgba(45, 45, 40, 0.85);
+  --color-nav-border: #43433B;
+
+  /* Contribution calendar */
+  --color-cal-0: #2D2D28;
+  --color-cal-1: #3D5C42;
+  --color-cal-2: #5A8068;
+  --color-cal-3: #7EA88A;
+  --color-cal-4: #A8BDA0;
+
+  /* Legacy aliases */
+  --color-background: var(--color-bg);
+  --color-muted:      var(--color-text-muted);
+  --color-nav:        #2D2D28;
 }
-:root[data-layout='wide'] { --content-width: 880px; }
-:root[data-layout='wider'] { --content-width: 1040px; }
+
+:root[data-layout='wide']   { --content-width: 880px; }
+:root[data-layout='wider']  { --content-width: 1040px; }
 
 @media (max-width: 375px) {
   :root { --page-gutter: 16px; }

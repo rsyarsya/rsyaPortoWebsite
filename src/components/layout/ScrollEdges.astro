@@ -13,6 +13,6 @@
   .scroll-edge > div { position: absolute; inset: 0; }
   .blur-band { backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); mask-image: linear-gradient(var(--direction), transparent var(--start), black calc(var(--start) + 24%), black calc(var(--start) + 42%), transparent calc(var(--start) + 65%)); }
   .blur-band:nth-last-child(2) { mask-image: linear-gradient(var(--direction), transparent var(--start), black 100%); }
-  .tint { background: linear-gradient(var(--direction), transparent, color-mix(in srgb, var(--color-background) 12%, transparent) 35%, color-mix(in srgb, var(--color-background) 65%, transparent) 75%, var(--color-background)); }
+  .tint { background: linear-gradient(var(--direction), transparent, color-mix(in srgb, var(--color-bg) 12%, transparent) 35%, color-mix(in srgb, var(--color-bg) 65%, transparent) 75%, var(--color-bg)); }
   @media (prefers-reduced-transparency: reduce) { .blur-band { backdrop-filter: none; -webkit-backdrop-filter: none; } }
 </style>
