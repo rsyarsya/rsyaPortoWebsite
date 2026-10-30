@@ -47,3 +47,11 @@ The original blueprint used only placeholder content. No mobile hardware or brow
 - Cross-page guestbook and homepage Work/Contact navigation verified; keyboard skip link and anonymous toggle have visible focus. Favicons in PNG/ICO sizes and supplied PDF return HTTP 200.
 - Desktop/mobile guestbook, expanded form, and activity screenshots visually reviewed. Browser console: zero errors/warnings. Artifacts: `output/playwright/{guestbook,guestbook-form,github-activity}-{390,1440}.png`.
 - Initial source repository checked empty before upload. Local Git commit/push is explicitly authorized by the user; no hosting deployment is part of this work.
+
+## Navigation vertical pass, 2026-10-30
+
+- Inspected Rimzz navigation state/direction source and exercised the live page using Playwright: top at 0px, hidden at 300px downward, pill at 220px upward, hidden at 600px downward. Implemented the same 64px initial threshold and 8px direction tolerance with original Astro/TypeScript components.
+- At 360/390/768/1024/1440px verified top → hidden → pill states, small-scroll tolerance, edge blur, menu visibility during scroll, menu placement within viewport, Escape close, theme switching, and no horizontal overflow.
+- Layout widths 880/1040px verified; theme/layout/motion survive navigation to guestbook. System reduced motion gives zero transition duration. Tab reveals hidden navigation. Page errors: none.
+- Visually reviewed dark desktop top/pill/settings and mobile settings. Screenshots: `output/playwright/navbar-{top,pill,settings}-{390,1440}.png`.
+- Astro check: 30 files, zero errors/warnings/hints. Production build: two routes, passed. Language selection is intentionally not presented without translated content.

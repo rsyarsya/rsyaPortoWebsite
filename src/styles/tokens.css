@@ -15,6 +15,19 @@
   --radius-panel: 12px;
 }
 
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #252521;
+  --color-surface: #30302b;
+  --color-text: #f0efeb;
+  --color-muted: #b5b3a8;
+  --color-border: #41413a;
+  --color-focus: #a6c5ac;
+  --color-nav: #2c2c27;
+}
+:root[data-layout='wide'] { --content-width: 880px; }
+:root[data-layout='wider'] { --content-width: 1040px; }
+
 @media (max-width: 375px) {
   :root { --page-gutter: 16px; }
 }

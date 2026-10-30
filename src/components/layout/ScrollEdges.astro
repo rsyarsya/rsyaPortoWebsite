@@ -1,0 +1,18 @@
+<div class="scroll-edge top" aria-hidden="true">
+  {[1, 2, 4, 8, 16].map((blur, index) => <div class="blur-band" style={`--blur:${blur}px;--start:${index * 16}%`}></div>)}
+  <div class="tint"></div>
+</div>
+<div class="scroll-edge bottom" aria-hidden="true">
+  {[1, 2, 4, 8, 16].map((blur, index) => <div class="blur-band" style={`--blur:${blur}px;--start:${index * 16}%`}></div>)}
+  <div class="tint"></div>
+</div>
+<style>
+  .scroll-edge { position: fixed; inset-inline: 0; height: 64px; z-index: 25; pointer-events: none; }
+  .top { top: 0; --direction: to top; opacity: var(--edge-top, 0); }
+  .bottom { bottom: 0; --direction: to bottom; opacity: var(--edge-bottom, 0); }
+  .scroll-edge > div { position: absolute; inset: 0; }
+  .blur-band { backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); mask-image: linear-gradient(var(--direction), transparent var(--start), black calc(var(--start) + 24%), black calc(var(--start) + 42%), transparent calc(var(--start) + 65%)); }
+  .blur-band:nth-last-child(2) { mask-image: linear-gradient(var(--direction), transparent var(--start), black 100%); }
+  .tint { background: linear-gradient(var(--direction), transparent, color-mix(in srgb, var(--color-background) 12%, transparent) 35%, color-mix(in srgb, var(--color-background) 65%, transparent) 75%, var(--color-background)); }
+  @media (prefers-reduced-transparency: reduce) { .blur-band { backdrop-filter: none; -webkit-backdrop-filter: none; } }
+</style>

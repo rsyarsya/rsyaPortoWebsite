@@ -1,0 +1,36 @@
+---
+import Icon from '../ui/Icon.astro';
+---
+<div class="preferences">
+  <button type="button" class="theme-toggle icon-button" aria-label="Switch to dark theme" title="Toggle theme" aria-pressed="false"><Icon name="theme" /></button>
+  <div class="settings-wrap">
+    <button type="button" class="settings-toggle icon-button" aria-label="Display settings" aria-expanded="false" aria-controls="display-settings" title="Display settings"><Icon name="settings" /></button>
+    <div id="display-settings" class="settings-panel" hidden>
+      <fieldset><legend>Animation</legend>
+        {['System', 'On', 'Off'].map(value => <label><input type="radio" name="motion" value={value.toLowerCase()} checked={value === 'System'} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
+      </fieldset>
+      <fieldset><legend>Layout</legend>
+        {['Default', 'Wide', 'Wider'].map(value => <label><input type="radio" name="layout" value={value.toLowerCase()} checked={value === 'Default'} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
+      </fieldset>
+    </div>
+  </div>
+</div>
+<style>
+  .preferences { display: flex; align-items: center; gap: 2px; }
+  .icon-button { display: inline-flex; justify-content: center; align-items: center; width: 44px; height: 44px; background: transparent; border: 0; border-radius: 50%; color: inherit; cursor: pointer; }
+  .icon-button:hover, .icon-button[aria-expanded='true'] { background: var(--color-surface); }
+  button:focus-visible, label:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .settings-wrap { position: relative; }
+  .settings-panel { position: absolute; right: 0; top: calc(100% + 12px); width: 192px; padding: 6px 0; border: 1px solid var(--color-border); border-radius: 18px; background: var(--color-nav); color: var(--color-text); box-shadow: 0 8px 24px rgb(0 0 0 / 9%); max-height: calc(100dvh - 100px); overflow-y: auto; }
+  [hidden] { display: none !important; }
+  fieldset { border: 0; margin: 0; padding: 8px; min-width: 0; }
+  fieldset + fieldset { border-top: 1px solid var(--color-border); }
+  legend { padding: 6px 8px 0; font-size: 13px; font-weight: 600; color: var(--color-muted); }
+  label { position: relative; display: flex; align-items: center; min-height: 40px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+  label:hover { background: var(--color-surface); }
+  input { appearance: none; width: 16px; height: 16px; border: 1px solid var(--color-muted); border-radius: 50%; margin: 0 10px 0 0; }
+  input:checked { border: 5px solid var(--color-text); }
+  .check { visibility: hidden; margin-left: auto; }
+  input:checked ~ .check { visibility: visible; }
+  @media (max-width: 767px) { .settings-panel { top: auto; bottom: calc(100% + 14px); } }
+</style>

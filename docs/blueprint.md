@@ -26,7 +26,7 @@ Layout and eventual scroll/footer direction follow Rimzz; section breadth follow
 - Source Serif 4 at 400/500: name, headings, introduction. Source Sans 3 at 400/600: lists, navigation, metadata, actions. Latin subsets self-hosted through Fontsource; retain package font licenses when redistributing assets.
 - Colors: background `#FAF9F6`, surface `#F0EEE8`, text `#292824`, muted `#69665F`, border `#DDDAD2`, keyboard focus `#456657`.
 - Centered, left-aligned 720px maximum column. Section gaps: 80px desktop, 48px mobile. Gutters: 32px desktop, 20px mobile, 16px at 375px and below.
-- Desktop begins at 768px. A sticky capsule navigation sits above the hero; below 768px it becomes a fixed bottom icon dock with accessible labels. The name appears only in the hero. List metadata moves beneath titles on mobile. Footer link groups remain three compact columns on mobile, with its identity/widget row stacked above them.
+- Desktop begins at 768px. Navigation blends into the page at the top, hides on downward scroll, and appears as a translucent capsule on upward scroll. Below 768px it is a bottom icon dock with directional hiding. Focus/menu interaction keeps navigation available. The name appears only in the hero. List metadata moves beneath titles on mobile. Footer link groups remain three compact columns on mobile, with its identity/widget row stacked above them.
 - Off the clock is one framed personal collection with four static windows: a large creative-work panel, two stacked interest panels, and a wide note panel. At 540px and below the windows become a single column. Window dots are decorative, not controls. All visual media and the footer listening widget remain explicit placeholders.
 - Name: 44/36px; section titles: 28/25px; body: 17px with 1.65 line height; metadata: 14px. Paragraphs are limited to 65ch.
 - Visual panels: 12px radius. Contact scene: 16:9. List separators are thin and quiet. No decorative numbering, custom cursor, shadow kit, or entrance effects.
@@ -36,7 +36,7 @@ Layout and eventual scroll/footer direction follow Rimzz; section breadth follow
 - `SectionHeading`: required `id` and `title`; renders an h2. The parent section references its ID using `aria-labelledby`.
 - `Placeholder`: required `label`; optional `variant` of `visual`, `compact`, or `scene`.
 - `PortfolioLink`: required `label`, optional `href`, optional `appearance` of `text` or `action`. Missing destinations render as noninteractive spans, never dead anchors.
-- Navigation points to homepage anchors `intro`, `projects`, `contributions`, and `contact`, plus `/guestbook/`. Shared navigation/footer route back to the homepage from the guestbook. Contact occupies the separated utility area. Theme/settings controls remain deferred.
+- Navigation points to homepage anchors `intro`, `projects`, `contributions`, plus `/guestbook/`. Contact remains accessible through hero/footer. Shared navigation/footer route back to the homepage from the guestbook. Utilities provide light/dark theme and animation/layout settings. Language remains deferred until translations exist.
 - No public API or content schema yet. Introduce typed data only when a vertical pass establishes actual content requirements.
 
 ## Next vertical passes

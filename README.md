@@ -24,7 +24,13 @@ This Windows checkout sets npm's script shell to `cmd.exe` in `.npmrc` so the lo
 
 See [the blueprint](docs/blueprint.md) for structure, design decisions, and the next vertical passes. Browser QA artifacts live in ignored `output/playwright/`.
 
-Astro 7 generates static HTML. Small client scripts open the guestbook form preview and position the contribution calendar. No backend, CMS, framework renderer, animation package, or hosting integration is required.
+Astro 7 generates static HTML. Small client scripts handle navigation/preferences, the guestbook preview, and contribution-calendar positioning. No backend, CMS, framework renderer, animation package, or hosting integration is required.
+
+## Navigation and display preferences
+
+Desktop navigation blends into the page at the top, hides when scrolling down, and returns as a translucent capsule when scrolling up. Small changes under 8px are ignored; the initial top region is 64px. Mobile keeps the bottom icon dock with the same directional hiding. Gradient blur remains at viewport edges while content scrolls beneath it.
+
+Theme toggle and display settings support light/dark, animation System/On/Off, and layout Default/Wide/Wider (720/880/1040px, constrained by screen width). Preferences are stored locally and applied before first paint. System animation follows reduced-motion preferences; Off removes navbar transitions. Menus stay visible while in use, close on Escape/outside click/focus departure, and remain keyboard accessible. Translation/language selection is deferred until localized content is available.
 
 ## GitHub activity
 
