@@ -19,8 +19,8 @@ import Icon from '../components/ui/Icon.astro';
         <div id="anonymous-form" hidden>
           <div class="preview-fields" role="group" aria-label="Anonymous guestbook form preview" aria-describedby="preview-status">
             <p id="preview-status">Form preview only. Nothing you type here is saved or sent.</p>
-            <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="off" placeholder="Your name" maxlength="80" /></div>
-            <div class="field"><label for="guest-site">Website <span>(optional)</span></label><input id="guest-site" type="url" inputmode="url" autocomplete="off" placeholder="https://your-website.com" maxlength="200" /></div>
+            <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="off" spellcheck="false" placeholder="Your name" maxlength="80" /></div>
+            <div class="field"><label for="guest-site">Website <span>(optional)</span></label><input id="guest-site" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-website.com" maxlength="200" /></div>
             <div class="field"><label for="guest-message">Message</label><textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000" data-lenis-prevent></textarea></div>
             <div class="form-actions"><button type="button" class="sign-in" disabled aria-describedby="preview-status">Sign guestbook</button><button type="button" class="cancel">Back</button></div>
           </div>
@@ -66,7 +66,7 @@ import Icon from '../components/ui/Icon.astro';
   [hidden] { display: none !important; }
   button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; font: 600 15px/1.4 var(--font-sans); min-height: 44px; border: 1px solid var(--color-border); border-radius: 12px; padding: 8px 14px; color: var(--color-text); background: var(--color-bg); cursor: pointer; }
   button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
-  button:disabled { cursor: not-allowed; opacity: 0.45; }
+  button:disabled { cursor: not-allowed; background: var(--color-disabled-bg); color: var(--color-disabled-fg); border-color: var(--color-disabled-border); }
   .sign-in { background: var(--color-btn-primary-bg); color: var(--color-btn-primary-fg); border-color: transparent; }
   .anonymous:hover, .cancel:hover { border-color: var(--color-border-interactive); }
   #signing-status, #preview-status { font-size: 13px; color: var(--color-text-muted); }
