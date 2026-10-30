@@ -16,8 +16,8 @@ let rafId = 0;
 // preempts and is never dropped.
 let isResolving = false;
 let pendingHash: string | null = null;
-// The URL hash is landed once per page load (direct load / cross-page link).
-// Later re-inits (Animation setting, OS reduced motion, resizing back across
+// The URL hash is landed only if Lenis starts at page load (direct load /
+// cross-page link). Later inits (Animation setting, OS reduced motion, resizing back across
 // 768px) must keep the reader where they are, not jump back to the hash.
 let initialHashHandled = false;
 
@@ -151,10 +151,9 @@ function init(): void {
     addEventListener('hashchange', onHashChange);
     addEventListener('popstate', onPopState);
     // Land an initial hash (direct load / cross-page) after layout settles,
-    // only on the first init of this page load.
-    const landInitialHash = !initialHashHandled;
-    initialHashHandled = true;
-    if (landInitialHash && location.hash && validTarget(location.hash)) {
+    // only when Lenis starts during the page-load evaluate(). A later init
+    // means native scrolling already handled the hash.
+    if (!initialHashHandled && location.hash && validTarget(location.hash)) {
       requestAnimationFrame(() => resolveHash(location.hash, true));
     }
   } catch (error) {
@@ -197,3 +196,6 @@ for (const mql of [pointerFine, hoverHover, viewportMin]) {
 }
 
 evaluate();
+// Initial landing is decided once, at page load. If Lenis was off here, the
+// browser already landed the hash natively; later inits keep the reader put.
+initialHashHandled = true;
