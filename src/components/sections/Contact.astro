@@ -11,7 +11,7 @@ import { profile } from '../../data/profile';
       <SectionHeading id="contact-title" title="Let's get in touch" />
       <p class="muted">Have an internship opportunity in data, AI, cloud, or IoT? I'd love to hear about it. I'm seeking a 6-month internship starting January 2027 and am available now.</p>
       <div class="contact-actions">
-        <a class="email" href={`mailto:${profile.email}`}><Icon name="contact" />Email me</a>
+        <a class="button button-primary" href={`mailto:${profile.email}`}><Icon name="contact" />Email me</a>
       </div>
       <a class="email-address" href={`mailto:${profile.email}`}>{profile.email}</a>
     </div>
@@ -21,9 +21,6 @@ import { profile } from '../../data/profile';
   .contact-panel { border: 1px solid var(--color-border); border-radius: var(--radius-panel); overflow: hidden; }
   .contact-body { padding: 24px; }
   .contact-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-  .contact-actions a { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--color-border); text-decoration: none; font-size: 16px; font-weight: 600; }
-  .email { background: var(--color-btn-primary-bg); color: var(--color-btn-primary-fg); }
-  .email:hover { background: var(--color-btn-primary-hover-bg); }
   .email-address { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; margin-top: 10px; color: var(--color-muted); font-size: 14px; overflow-wrap: anywhere; }
   .contact-panel :global(.scene) { border-bottom: 1px solid var(--color-border); }
   @media (min-width: 768px) { .contact-body { padding: 32px; } }

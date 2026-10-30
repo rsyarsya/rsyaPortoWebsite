@@ -14,6 +14,9 @@
   --color-accent:           #456657;
   --color-accent-fg:        #FAF9F6;
   --color-focus:            #456657;
+  /* One keyboard focus ring for every control (global.css applies it). */
+  --focus-ring:             2px solid var(--color-focus);
+  --focus-offset:           2px;
   --color-placeholder:      var(--color-text-muted);
 
   /* Disabled controls: readable but clearly inactive (no opacity fade). */
