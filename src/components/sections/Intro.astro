@@ -1,0 +1,40 @@
+---
+import Icon from '../ui/Icon.astro';
+import { profile } from '../../data/profile';
+---
+<section id="intro" aria-labelledby="intro-title">
+  <h1 id="intro-title">{profile.name}</h1>
+  <div class="introduction">
+    <p>I'm a fifth-semester Information Technology student at Universitas Gadjah Mada,
+      with a focus on data, AI, cloud, and IoT.</p>
+    <p>My work connects hardware, software, and data. Through projects including
+      HydroConnect and OSTOSENSE, I've worked on IoT systems, embedded AI,
+      and applications that bring sensor data to people.</p>
+  </div>
+  <div class="availability">
+    <span class="availability-dot" aria-hidden="true"></span>
+    <div><p>Available now</p><p class="availability-detail">Seeking a 6-month internship starting <time datetime="2027-01">January 2027</time>.</p></div>
+  </div>
+  <div class="hero-actions">
+    <a class="hero-action primary" href={`mailto:${profile.email}`}><Icon name="contact" />Get in touch</a>
+    <a class="hero-action secondary" href={profile.resume} target="_blank" rel="noopener noreferrer" aria-label="My résumé (PDF, opens in a new tab)">My résumé<Icon name="arrow-up-right" /></a>
+  </div>
+</section>
+<style>
+  h1 { margin-bottom: 24px; }
+  .introduction { font-family: var(--font-serif); }
+  .introduction p + p { margin-top: 16px; }
+  .availability { display: flex; align-items: flex-start; gap: 10px; margin-top: 28px; font-size: 15px; line-height: 1.5; }
+  .availability-dot { flex: 0 0 7px; height: 7px; margin-top: 8px; border-radius: 50%; background: var(--color-focus); }
+  .availability-detail { font-size: 14px; color: var(--color-muted); margin-top: 2px; }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
+  .hero-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid transparent; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; }
+  .primary { background: var(--color-text); color: var(--color-background); }
+  .primary:hover { background: var(--color-focus); }
+  .secondary { border-color: var(--color-border); background: var(--color-surface); }
+  .secondary:hover { border-color: var(--color-muted); }
+  @media (max-width: 375px) {
+    .hero-actions { gap: 8px; }
+    .hero-action { padding-inline: 12px; }
+  }
+</style>

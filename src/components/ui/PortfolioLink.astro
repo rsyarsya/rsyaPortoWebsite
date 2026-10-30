@@ -1,0 +1,10 @@
+---
+interface Props { href?: string; label: string; appearance?: 'text' | 'action'; }
+const { href, label, appearance = 'text' } = Astro.props;
+---
+{href ? <a class:list={[appearance]} href={href}>{label}</a> : <span class:list={[appearance, 'unavailable']}>{label}</span>}
+<style>
+  a { display: inline-flex; align-items: center; min-height: 44px; }
+  .action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 18px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 15px; }
+  .unavailable { color: var(--color-muted); }
+</style>

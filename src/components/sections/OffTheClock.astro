@@ -1,0 +1,70 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+---
+<section id="off-the-clock" aria-labelledby="off-the-clock-title">
+  <SectionHeading id="off-the-clock-title" title="Off the clock" />
+  <div class="desktop-space">
+    <div class="space-bar"><span>Personal collection</span><span>Off duty</span></div>
+    <div class="windows">
+      <figure class="window featured">
+        <div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><span>Collection</span></div>
+        <div class="visual artwork"><div class="sheet sheet-back"></div><div class="sheet sheet-front"></div><span>Artwork placeholder</span></div>
+        <figcaption><strong>Creative work</strong><span>A place for personal projects and experiments.</span></figcaption>
+      </figure>
+      <figure class="window">
+        <div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><span>Playing</span></div>
+        <div class="visual covers"><div></div><div></div><span>Cover placeholders</span></div>
+        <figcaption><strong>Currently enjoying</strong><span>Games, books, or something else.</span></figcaption>
+      </figure>
+      <figure class="window">
+        <div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><span>Outside</span></div>
+        <div class="visual photo"><span>Photo placeholder</span></div>
+        <figcaption><strong>Away from the desk</strong><span>Moments worth keeping.</span></figcaption>
+      </figure>
+      <div class="window journal">
+        <div class="journal-preview" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><h3>A small personal note</h3><p>Space for a story, a recent discovery, or a little more about you.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .desktop-space { border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface); padding: 12px; }
+  .space-bar { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 2px 4px 12px; color: var(--color-muted); font-size: 13px; }
+  .windows { display: grid; grid-template-columns: 1.45fr 1fr; gap: 10px; }
+  .window { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-background); }
+  figure { display: flex; flex-direction: column; }
+  .featured { grid-row: span 2; }
+  .window-bar { display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-bottom: 1px solid var(--color-border); font-size: 11px; color: var(--color-muted); }
+  .window-dots { display: flex; gap: 4px; }
+  .window-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--color-border); }
+  .visual { position: relative; display: grid; place-items: center; margin: 8px; min-height: 114px; border-radius: 5px; background: var(--color-surface); color: var(--color-muted); font-size: 12px; overflow: hidden; }
+  .visual > span { position: relative; padding: 4px 8px; background: var(--color-surface); border-radius: 4px; }
+  .artwork { flex: 1; min-height: 270px; }
+  .sheet { position: absolute; width: 58%; height: 66%; border: 1px solid var(--color-border); background: var(--color-background); }
+  .sheet-back { transform: rotate(-10deg) translate(-12px, -4px); }
+  .sheet-front { transform: rotate(8deg) translate(18px, 10px); }
+  .covers { grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; }
+  .covers > div { width: 100%; height: 100%; border: 1px solid var(--color-border); border-radius: 3px; background: var(--color-background); }
+  .covers > span { position: absolute; }
+  .photo::before { content: ''; position: absolute; inset: 10px; border: 1px solid var(--color-border); border-radius: 3px; }
+  figcaption { display: flex; flex-direction: column; gap: 2px; padding: 4px 12px 12px; line-height: 1.4; }
+  figcaption strong { font-size: 15px; font-weight: 600; }
+  figcaption > span { font-size: 13px; color: var(--color-muted); }
+  .journal { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; padding: 16px; }
+  .journal h3 { font-size: 15px; margin-bottom: 4px; }
+  .journal p { font-size: 13px; line-height: 1.5; color: var(--color-muted); }
+  .journal-preview { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--color-border); border-radius: 5px; }
+  .journal-preview span { height: 4px; background: var(--color-border); border-radius: 2px; }
+  .journal-preview span:nth-child(2) { width: 80%; }
+  .journal-preview span:last-child { width: 55%; }
+  @media (max-width: 540px) {
+    .desktop-space { padding: 8px; }
+    .windows { grid-template-columns: 1fr; }
+    .featured { grid-row: auto; }
+    .artwork { min-height: 240px; }
+    .visual { min-height: 140px; }
+    .journal { grid-template-columns: 1fr; gap: 16px; }
+    .journal-preview { display: none; }
+  }
+</style>

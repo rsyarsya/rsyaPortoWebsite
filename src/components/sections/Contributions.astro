@@ -1,0 +1,66 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import snapshot from '../../data/github-contributions.json';
+import { profile } from '../../data/profile';
+const formatDate = (value: string) => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
+const colors = ['#f0eee8', '#d4e1d5', '#a6c5ac', '#709b7e', '#456657'];
+const offset = new Date(`${snapshot.from}T00:00:00Z`).getUTCDay();
+const weekCount = Math.ceil((offset + snapshot.days.length) / 7);
+const step = 12.5;
+const left = 32;
+const width = left + weekCount * step;
+const months = snapshot.days.filter(day => day.date.endsWith('-01'));
+const monthTotals = new Map<string, number>();
+for (const day of snapshot.days) {
+  const month = day.date.slice(0, 7);
+  monthTotals.set(month, (monthTotals.get(month) ?? 0) + day.count);
+}
+---
+<section id="contributions" aria-labelledby="contributions-title">
+  <div class="activity-heading"><SectionHeading id="contributions-title" title="Contributions" /><a href={profile.github}>@{snapshot.username}</a></div>
+  <p class="activity-total"><strong>{snapshot.total.toLocaleString('en')}</strong> contributions in the past year</p>
+  <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar. Scroll horizontally to explore the year.">
+    <svg viewBox={`0 0 ${width} 116`} width={width} height="116" role="img" aria-labelledby="calendar-title calendar-description">
+      <title id="calendar-title">{snapshot.total} GitHub contributions, {formatDate(snapshot.from)} to {formatDate(snapshot.through)}</title>
+      <desc id="calendar-description">Each square represents a day. Darker squares indicate more contributions. A monthly text summary is available below.</desc>
+      {months.map(day => {
+        const index = snapshot.days.findIndex(item => item.date === day.date);
+        return <text x={left + Math.floor((offset + index) / 7) * step} y="12">{day.date.slice(5, 7) === '01' ? 'Jan' : new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(new Date(`${day.date}T00:00:00Z`))}</text>;
+      })}
+      {[{ label: 'Mon', row: 1 }, { label: 'Wed', row: 3 }, { label: 'Fri', row: 5 }].map(item => <text x="0" y={26 + item.row * step + 7}>{item.label}</text>)}
+      {snapshot.days.map((day, index) => <rect x={left + Math.floor((offset + index) / 7) * step} y={24 + ((offset + index) % 7) * step} width="9.5" height="9.5" rx="2" fill={colors[day.level]}><title>{day.count} {day.count === 1 ? 'contribution' : 'contributions'} on {formatDate(day.date)}</title></rect>)}
+    </svg>
+  </div>
+  <p class="scroll-hint">Scroll to explore the year.</p>
+  <div class="calendar-caption"><span>Updated <time datetime={snapshot.through}>{formatDate(snapshot.through)}</time></span><div class="legend" aria-label="Legend from fewer to more contributions"><span>Less</span>{colors.map(color => <i style={`background:${color}`} aria-hidden="true"></i>)}<span>More</span></div></div>
+  <details class="monthly-summary"><summary>Activity by month</summary><ul>{[...monthTotals].map(([month, count]) => <li><span>{new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-01T00:00:00Z`))}</span><span>{count} contributions</span></li>)}</ul><a href={snapshot.source}>View this period on GitHub</a></details>
+</section>
+<script>
+  // Start at the most recent activity when the year is wider than the viewport.
+  const calendar = document.querySelector<HTMLElement>('.calendar-scroll');
+  if (calendar) calendar.scrollLeft = calendar.scrollWidth;
+</script>
+<style>
+  section { min-width: 0; }
+  .activity-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .activity-heading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: var(--color-muted); text-decoration: none; }
+  .activity-heading a:hover { text-decoration: underline; }
+  .activity-total { margin-top: -8px; margin-bottom: 22px; color: var(--color-muted); font-size: 15px; }
+  .activity-total strong { color: var(--color-text); font-weight: 600; }
+  .calendar-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 8px; }
+  .scroll-hint { display: none; font-size: 12px; color: var(--color-muted); margin-top: 4px; }
+  .calendar-scroll:focus-visible, summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: 4px; }
+  svg { display: block; min-width: 640px; }
+  svg text { fill: var(--color-muted); font-family: var(--font-sans); font-size: 10px; }
+  .calendar-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--color-muted); }
+  .legend { display: flex; align-items: center; gap: 4px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; }
+  .legend span:first-child { margin-right: 4px; }
+  .legend span:last-child { margin-left: 4px; }
+  .monthly-summary { margin-top: 20px; font-size: 14px; color: var(--color-muted); }
+  summary { cursor: pointer; width: fit-content; min-height: 44px; padding-block: 10px; }
+  .monthly-summary ul { margin-block: 8px 12px; }
+  .monthly-summary li { display: flex; justify-content: space-between; gap: 16px; padding-block: 6px; border-bottom: 1px solid var(--color-border); }
+  .monthly-summary a { display: inline-flex; align-items: center; min-height: 44px; }
+  @media (max-width: 767px) { .scroll-hint { display: block; } }
+</style>

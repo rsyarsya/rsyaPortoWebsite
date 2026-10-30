@@ -1,0 +1,10 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import { highlights } from '../../data/portfolio';
+---
+<section id="highlights" aria-labelledby="highlights-title">
+  <SectionHeading id="highlights-title" title="Highlights" />
+  <ul class="placeholder-list">
+    {highlights.map(item => <li class="placeholder-row"><h3>{item.title}</h3><span class="metadata">{item.context}</span></li>)}
+  </ul>
+</section>

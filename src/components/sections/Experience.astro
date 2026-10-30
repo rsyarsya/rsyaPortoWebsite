@@ -1,0 +1,22 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import { experience } from '../../data/portfolio';
+---
+<section id="experience" aria-labelledby="experience-title">
+  <SectionHeading id="experience-title" title="Experience" />
+  <ul class="placeholder-list">
+    {experience.map(item => <li class="experience-row">
+      <div class="experience-heading"><h3>{item.organization}</h3><span class="metadata">{item.period}</span></div>
+      <p class="role">{item.role}</p>
+      <p class="description">{item.description}</p>
+    </li>)}
+  </ul>
+</section>
+<style>
+  .experience-row { padding-block: 20px; border-bottom: 1px solid var(--color-border); }
+  .experience-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 24px; }
+  .metadata { flex-shrink: 0; }
+  .role { margin-top: 3px; font-size: 15px; }
+  .description { color: var(--color-muted); margin-top: 6px; }
+  @media (max-width: 767px) { .experience-heading { flex-direction: column; } }
+</style>

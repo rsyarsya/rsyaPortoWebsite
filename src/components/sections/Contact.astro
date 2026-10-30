@@ -1,0 +1,30 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Placeholder from '../ui/Placeholder.astro';
+import Icon from '../ui/Icon.astro';
+import { profile } from '../../data/profile';
+---
+<section id="contact" aria-labelledby="contact-title">
+  <div class="contact-panel">
+    <Placeholder label="Static scene placeholder" variant="scene" />
+    <div class="contact-body">
+      <SectionHeading id="contact-title" title="Let's get in touch" />
+      <p class="muted">Have an internship opportunity in data, AI, cloud, or IoT? I'd love to hear about it. I'm seeking a 6-month internship starting January 2027 and am available now.</p>
+      <div class="contact-actions">
+        <a class="email" href={`mailto:${profile.email}`}><Icon name="contact" />Email me</a>
+      </div>
+      <a class="email-address" href={`mailto:${profile.email}`}>{profile.email}</a>
+    </div>
+  </div>
+</section>
+<style>
+  .contact-panel { border: 1px solid var(--color-border); border-radius: var(--radius-panel); overflow: hidden; }
+  .contact-body { padding: 24px; }
+  .contact-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .contact-actions a { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--color-border); text-decoration: none; font-size: 16px; font-weight: 600; }
+  .email { background: var(--color-text); color: var(--color-background); }
+  .email:hover { background: var(--color-focus); }
+  .email-address { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; margin-top: 10px; color: var(--color-muted); font-size: 14px; overflow-wrap: anywhere; }
+  .contact-panel :global(.scene) { border-bottom: 1px solid var(--color-border); }
+  @media (min-width: 768px) { .contact-body { padding: 32px; } }
+</style>

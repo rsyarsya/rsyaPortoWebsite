@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/layout/Container.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import Icon from '../components/ui/Icon.astro';
+---
+<BaseLayout title="Guestbook — Rasyadwa Arsya" description="A little space to leave a note, say hello, or share your website. Guestbook signing opens soon.">
+  <Container>
+    <SiteHeader />
+    <main id="main" tabindex="-1" class="guestbook-page">
+      <div class="page-intro"><h1>Guestbook</h1><p>Leave a note, say hi, or share your website.</p></div>
+      <section class="composer" aria-label="Sign the guestbook">
+        <div class="composer-actions">
+          <button type="button" class="sign-in" disabled aria-describedby="signing-status"><Icon name="github" />Sign in with GitHub</button>
+          <button type="button" class="anonymous" aria-expanded="false" aria-controls="anonymous-form"><Icon name="user" />Write anonymously</button>
+        </div>
+        <p id="signing-status">Signing opens soon. You can preview the anonymous form below.</p>
+        <div id="anonymous-form" hidden>
+          <div class="preview-fields" role="group" aria-label="Anonymous guestbook form preview" aria-describedby="preview-status">
+            <p id="preview-status">Form preview only. Nothing you type here is saved or sent.</p>
+            <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="off" placeholder="Your name" maxlength="80" /></div>
+            <div class="field"><label for="guest-site">Website <span>(optional)</span></label><input id="guest-site" type="url" inputmode="url" autocomplete="off" placeholder="https://your-website.com" maxlength="200" /></div>
+            <div class="field"><label for="guest-message">Message</label><textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000"></textarea></div>
+            <div class="form-actions"><button type="button" class="sign-in" disabled aria-describedby="preview-status">Sign guestbook</button><button type="button" class="cancel">Back</button></div>
+          </div>
+        </div>
+      </section>
+      <section class="entries" aria-labelledby="entries-title">
+        <div class="entries-heading"><h2 id="entries-title">Entries</h2><span>0 notes</span></div>
+        <div class="empty-entry"><div class="avatar" aria-hidden="true"><Icon name="guestbook" /></div><div><p>No notes yet.</p><p class="muted">This space will hold your messages once the guestbook opens.</p></div></div>
+      </section>
+    </main>
+    <SiteFooter />
+  </Container>
+</BaseLayout>
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.anonymous');
+  const panel = document.querySelector<HTMLElement>('#anonymous-form');
+  const actions = document.querySelector<HTMLElement>('.composer-actions');
+  const cancel = document.querySelector<HTMLButtonElement>('.cancel');
+  const status = document.querySelector<HTMLElement>('#signing-status');
+  toggle?.addEventListener('click', () => {
+    if (!panel || !actions) return;
+    panel.hidden = false;
+    actions.hidden = true;
+    if (status) status.hidden = true;
+    toggle.setAttribute('aria-expanded', 'true');
+    document.querySelector<HTMLInputElement>('#guest-name')?.focus();
+  });
+  cancel?.addEventListener('click', () => {
+    if (!panel || !actions || !toggle) return;
+    panel.hidden = true;
+    actions.hidden = false;
+    if (status) status.hidden = false;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus();
+  });
+</script>
+<style>
+  .guestbook-page { padding-bottom: 80px; }
+  .page-intro h1 { font-size: 36px; margin-bottom: 16px; }
+  .page-intro p { color: var(--color-muted); }
+  .composer { margin-top: 32px; border-radius: 20px; background: var(--color-surface); padding: 20px; }
+  .composer-actions, .form-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  [hidden] { display: none !important; }
+  button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; font: 600 15px/1.4 var(--font-sans); min-height: 44px; border: 1px solid var(--color-border); border-radius: 12px; padding: 8px 14px; color: var(--color-text); background: var(--color-background); cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+  button:disabled { cursor: not-allowed; }
+  .sign-in { background: var(--color-text); color: var(--color-background); }
+  .anonymous:hover, .cancel:hover { border-color: var(--color-muted); }
+  #signing-status, #preview-status { font-size: 13px; color: var(--color-muted); }
+  #signing-status { margin-top: 12px; }
+  .preview-fields { display: grid; gap: 20px; margin-top: 16px; }
+  .field { display: grid; gap: 6px; }
+  label { font-size: 15px; font-weight: 600; }
+  label span { color: var(--color-muted); font-size: 13px; font-weight: 400; }
+  input, textarea { width: 100%; min-height: 44px; border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 12px; background: var(--color-background); color: var(--color-text); font: 16px/1.5 var(--font-sans); }
+  textarea { resize: vertical; }
+  .entries { margin-top: 40px; }
+  .entries-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 12px; color: var(--color-muted); }
+  .entries-heading h2 { font: 400 15px/1.5 var(--font-sans); letter-spacing: 0; }
+  .entries-heading > span { font-size: 13px; }
+  .empty-entry { display: flex; gap: 12px; border-block: 1px solid var(--color-border); padding-block: 24px; font-size: 15px; }
+  .empty-entry .muted { margin-top: 4px; }
+  .avatar { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-muted); }
+  @media (max-width: 767px) { .guestbook-page { padding-top: 48px; padding-bottom: 48px; } .page-intro h1 { font-size: 32px; } }
+  @media (max-width: 400px) { .composer { padding: 16px; } .composer-actions { flex-direction: column; align-items: stretch; } }
+</style>

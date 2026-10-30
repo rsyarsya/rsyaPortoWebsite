@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/layout/Container.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import Intro from '../components/sections/Intro.astro';
+import Experience from '../components/sections/Experience.astro';
+import Education from '../components/sections/Education.astro';
+import Projects from '../components/sections/Projects.astro';
+import Highlights from '../components/sections/Highlights.astro';
+import Contributions from '../components/sections/Contributions.astro';
+import Guestbook from '../components/sections/Guestbook.astro';
+import Contact from '../components/sections/Contact.astro';
+---
+<BaseLayout>
+  <Container>
+    <SiteHeader />
+    <main id="main" tabindex="-1" class="section-stack">
+      <Intro />
+      <Experience />
+      <Projects />
+      <Education />
+      <Highlights />
+      <Contributions />
+      <Guestbook />
+      <Contact />
+    </main>
+    <SiteFooter />
+  </Container>
+</BaseLayout>

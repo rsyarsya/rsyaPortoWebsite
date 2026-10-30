@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  --color-background: #faf9f6;
+  --color-surface: #f0eee8;
+  --color-text: #292824;
+  --color-muted: #69665f;
+  --color-border: #dddad2;
+  --color-focus: #456657;
+  --color-nav: #f5f4ef;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  --content-width: 720px;
+  --page-gutter: 20px;
+  --section-gap: 48px;
+  --radius-panel: 12px;
+}
+
+@media (max-width: 375px) {
+  :root { --page-gutter: 16px; }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 32px;
+    --section-gap: 80px;
+  }
+}

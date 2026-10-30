@@ -1,0 +1,20 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+---
+<section id="guestbook" aria-labelledby="guestbook-title">
+  <SectionHeading id="guestbook-title" title="Guestbook" />
+  <p class="section-description">A little space for the people who stop by.</p>
+  <div class="invitation">
+    <div><Icon name="guestbook" /><p>Leave a note, say hello, or share your corner of the internet.</p><span>Signing opens soon.</span></div>
+    <a href="/guestbook/">Visit the guestbook<Icon name="arrow-up-right" /></a>
+  </div>
+</section>
+<style>
+  .invitation { border-block: 1px solid var(--color-border); padding-block: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .invitation > div > :global(svg) { color: var(--color-muted); margin-bottom: 10px; }
+  p { max-width: 38ch; }
+  .invitation span { display: block; color: var(--color-muted); font-size: 14px; margin-top: 6px; }
+  a { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; }
+  @media (max-width: 540px) { .invitation { flex-direction: column; align-items: flex-start; gap: 16px; } }
+</style>

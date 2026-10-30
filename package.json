@@ -1,0 +1,23 @@
+{
+  "name": "sya-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "sync:github": "node scripts/sync-github-contributions.mjs"
+  },
+  "dependencies": {
+    "@fontsource/source-sans-3": "^5.2.0",
+    "@fontsource/source-serif-4": "^5.2.0",
+    "astro": "^7.4.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "node": "^22.23.4",
+    "typescript": "^5.9.0"
+  }
+}

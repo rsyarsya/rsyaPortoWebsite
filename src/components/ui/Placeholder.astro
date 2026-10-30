@@ -1,0 +1,10 @@
+---
+interface Props { label: string; variant?: 'visual' | 'compact' | 'scene'; }
+const { label, variant = 'visual' } = Astro.props;
+---
+<div class:list={['placeholder', variant]}><span>{label}</span></div>
+<style>
+  .placeholder { display: grid; place-items: center; padding: 24px; min-height: 160px; border: 1px solid var(--color-border); border-radius: var(--radius-panel); background: var(--color-surface); color: var(--color-muted); text-align: center; font-size: 14px; }
+  .compact { min-height: 120px; }
+  .scene { aspect-ratio: 16 / 9; min-height: 0; border: 0; border-radius: 0; }
+</style>

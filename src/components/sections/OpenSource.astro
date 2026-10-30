@@ -1,0 +1,9 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+---
+<section id="open-source" aria-labelledby="open-source-title">
+  <SectionHeading id="open-source-title" title="Open source" />
+  <ul class="placeholder-list">
+    {Array.from({ length: 2 }, () => <li class="placeholder-row"><div><h3>Contribution title</h3><p>Contribution description</p></div><span class="metadata">Repository</span></li>)}
+  </ul>
+</section>
