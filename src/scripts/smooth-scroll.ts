@@ -177,6 +177,31 @@ function destroy(): void {
   lenis = null;
 }
 
+// --- Scroll lock for modal dialogs. -----------------------------------------
+// Stops Lenis (if running) and the native document scroll, then restores the
+// exact position on unlock. Nested locks are counted. Elements that must still
+// scroll inside a locked page carry data-lenis-prevent.
+let lockCount = 0;
+let lockedY = 0;
+
+export function lockScroll(): void {
+  if (lockCount++ > 0) return;
+  lockedY = window.scrollY;
+  // Keep the scrollbar's space so the column and fixed bars do not shift.
+  const hasScrollbar = window.innerWidth > root.clientWidth;
+  lenis?.stop();
+  root.style.overflow = 'hidden';
+  if (hasScrollbar) root.style.scrollbarGutter = 'stable';
+}
+
+export function unlockScroll(): void {
+  if (lockCount === 0 || --lockCount > 0) return;
+  root.style.overflow = '';
+  root.style.scrollbarGutter = '';
+  lenis?.start();
+  if (window.scrollY !== lockedY) window.scrollTo({ top: lockedY, behavior: 'instant' });
+}
+
 function evaluate(): void {
   if (eligible()) init();
   else destroy();

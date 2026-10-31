@@ -11,7 +11,7 @@ import { profile } from '../../data/profile';
       <SectionHeading id="contact-title" title="Let's get in touch" />
       <p class="muted">Have an internship opportunity in data, AI, cloud, or IoT? I'd love to hear about it. I'm seeking a 6-month internship starting January 2027 and am available now.</p>
       <div class="contact-actions">
-        <a class="button button-primary" href={`mailto:${profile.email}`}><Icon name="contact" />Email me</a>
+        <a class="button button-primary" href={`mailto:${profile.email}`} data-contact-open><Icon name="contact" />Email me</a>
       </div>
       <a class="email-address" href={`mailto:${profile.email}`}>{profile.email}</a>
     </div>

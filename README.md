@@ -1,6 +1,6 @@
 # Rasyadwa Arsya — Portfolio
 
-A responsive Astro + TypeScript portfolio in progress. Professional content is based on the supplied CV; each homepage section is an independent Astro component. Guestbook UI has its own route at `/guestbook/`.
+A responsive Astro + TypeScript portfolio in progress. Professional content is based on the supplied CV; each homepage section is an independent Astro component. Guestbook UI has its own route at `/guestbook/`. `/playground/` holds a small interactive water-lines experiment (`src/scripts/playground-water.ts`): sliders, click/tap ripples, Pause/Play and Reset; it starts on load only when animation is on, stops while hidden or off screen, and is linked from the footer and the command palette, not the navbar.
 
 ## Run locally
 
@@ -18,13 +18,16 @@ This Windows checkout sets npm's script shell to `cmd.exe` in `.npmrc` so the lo
 | --- | --- |
 | `npm run dev` | Development server |
 | `npm run check` | Astro and TypeScript diagnostics |
-| `npm run build` | Static production output in `dist/` |
+| `npm test` | Contact and guestbook endpoint tests (vitest) |
+| `npm run build` | Production output: static pages in `dist/client/`, API endpoints in `dist/server/` |
+| `npm run guestbook:moderate -- list` | List pending guestbook notes; also `approve <id>`, `reject <id>`, `delete <id>` |
+| `npm run spotify:auth` | One-time helper that prints a Spotify refresh token for the music widget |
 | `npm run preview` | Serve the production build locally |
 | `npm run sync:github` | Refresh the committed contribution calendar with GitHub CLI |
 
 See [the blueprint](docs/blueprint.md) for structure, design decisions, and the next vertical passes. Browser QA artifacts live in ignored `output/playwright/`.
 
-Astro 7 generates static HTML. Small client scripts handle navigation/preferences, the guestbook preview, and contribution-calendar positioning. No backend, CMS, framework renderer, animation package, or hosting integration is required.
+Astro 7 prerenders every page to static HTML. The only server code is the contact, guestbook and now-playing endpoints (see [Contact form](#contact-form), [Guestbook](#guestbook) and [Music widget](#music-widget-spotify)), which run through the Node adapter. Small client scripts handle navigation/preferences, the contact dialog, the guestbook, and contribution-calendar positioning. No CMS, framework renderer, or animation package is used.
 
 ## Navigation and display preferences
 
@@ -64,15 +67,92 @@ Faint water-current glyphs (`~` crests, `-` shoulders, `·` spray) drift slowly 
 - **Motion policy.** About 8 updates per second (5, with larger cells and DPR 1, on `(pointer: coarse)`). Each update is a timer followed by one `requestAnimationFrame`, so the page is not woken at 60Hz in between. It runs only while `html[data-motion]` is `full`, the tab is visible and the contact scene is not animating (`onSceneActiveChange()`; the last frame stays while the scene runs). Animation Off and reduced motion under System show one still frame. No scroll, wheel or pointer listeners.
 - **Turning it off.** Set `ASCII_BACKGROUND_ENABLED = false` in `BaseLayout.astro`: the pages then contain no layer markup and load no background script.
 
+## Contact form
+
+"Get in touch" (hero) and "Email me" (Contact) open one native `<dialog>` (`src/components/ui/ContactDialog.astro`). Without JavaScript both stay `mailto:` links. The dialog posts JSON to `POST /api/contact` (`src/pages/api/contact.ts`, the only on-demand route; every page is still prerendered). The handler in `src/server/contact.ts` checks same-origin, JSON content type, a 16 KiB body cap, a honeypot field and the fields (name 1–80, email ≤254, message 1–2000), then sends a plain-text email through the Resend REST API. The recipient comes only from server config; the visitor's address is the Reply-To. The UI reports success only when Resend returns 2xx with a message id, and it says the mail service accepted the message, not that it arrived. Message bodies and email addresses are never logged.
+
+Rate limit: 3 messages per client address per 10 minutes, kept in process memory. This is best-effort: it holds on one long-lived Node server, but resets on restart and is per-instance on serverless hosts.
+
+Server environment variables (read at runtime via `astro:env`, never sent to the browser; set them in the host's environment, not in the repository):
+
+| Variable | Required | Default |
+| --- | --- | --- |
+| `RESEND_API_KEY` | yes | none; without it the endpoint answers `503 not_configured` and the dialog offers the email address instead |
+| `CONTACT_TO_EMAIL` | no | the email in `src/data/profile.ts` |
+| `CONTACT_FROM_EMAIL` | no | `Portfolio <onboarding@resend.dev>` |
+
+Resend's `onboarding@resend.dev` sender only delivers to the address that owns the Resend account, so either open the account with the profile email or verify a domain and set `CONTACT_FROM_EMAIL` to an address on it.
+
+Local run with delivery: set the variable in the shell for that process only, e.g. PowerShell `$env:RESEND_API_KEY = 're_…'; npm run dev`. `npm run build` writes `dist/client/` (static files) and `dist/server/entry.mjs`; serve both with `npm run preview` or `node dist/server/entry.mjs` (`HOST`/`PORT` set the address). Tests: `npm test` (vitest, mocked provider, no network).
+
+Hosting: the site uses `@astrojs/node` in standalone mode, so any Node host works. To move to Vercel, Netlify or Cloudflare, replace the `adapter` line in `astro.config.mjs` with that platform's adapter; the handler uses only `Request`, `Response` and `fetch`. The in-memory rate limit is weaker there (see above).
+
+## Guestbook
+
+`/guestbook/` stays a prerendered page. It loads notes from `GET /api/guestbook` (approved notes only, newest first, 20 per page with a cursor and "Load more") and posts the anonymous form (optional name ≤80, optional http/https website ≤200, message 1–1000) to `POST /api/guestbook`. The handler (`src/server/guestbook.ts`) reuses the contact guards in `src/server/http.ts` (same-origin, JSON only, size cap, honeypot, 3 notes per client per 10 minutes in memory). New notes are stored as `pending` and answer `202`; only approved notes are public. Notes are rendered as plain text and website links get `rel="ugc nofollow noopener noreferrer"`. No IP address, user agent or email is stored. GitHub sign-in is shown as disabled ("later").
+
+Storage is libSQL (`@libsql/client`); the table is created on first use.
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `GUESTBOOK_DB_URL` | yes | Turso `libsql://<db>.turso.io` in production; locally `file:.data/guestbook.db`. Without it the API answers `503 not_configured` and the page says signing is unavailable |
+| `GUESTBOOK_DB_AUTH_TOKEN` | for Turso | Turso database token; not needed for a local `file:` DB |
+
+Local run: `.data/` is git-ignored (local only). Create it, then set the variable for the process, e.g. PowerShell `mkdir .data; $env:GUESTBOOK_DB_URL = 'file:.data/guestbook.db'; npm run dev`.
+
+Moderation is a local CLI with the same variables in the shell; there is no admin HTTP endpoint:
+
+```
+npm run guestbook:moderate -- list           # pending notes with ids
+npm run guestbook:moderate -- approve <id>
+npm run guestbook:moderate -- reject <id>
+npm run guestbook:moderate -- delete <id>
+```
+
+## Music widget (Spotify)
+
+The footer shows what the owner is playing, or the last played track with a relative time. It reads `GET /api/now-playing` (`src/pages/api/now-playing.ts` + `src/server/now-playing.ts`), caches the response for 30 s (`Cache-Control: public, s-maxage=30, stale-while-revalidate=60`), and returns only track, artist and album names, the provider's own links and the artwork URL. The widget loads when the footer comes near the viewport and refreshes about every 60 s while the tab is visible, attributing the track to its source ("on Spotify" or "via Last.fm"). Without credentials the API answers `503 not_configured` and the widget says listening activity is unavailable; upstream errors give `502`. No audio is played.
+
+Two providers are supported. **Last.fm takes precedence over Spotify when both are configured** — use it when the owner has no Spotify Premium, since Spotify's Web API returns `403 Active premium subscription required for the owner of the app` for Development Mode apps without Premium. Selection resolves once per process: Last.fm when `LASTFM_API_KEY` + `LASTFM_USERNAME` are set, else Spotify when all three `SPOTIFY_*` vars are set, else `not_configured`.
+
+### Last.fm (recommended, free)
+
+Last.fm scrobbles your Spotify (or other player) listens and its API has no Premium requirement.
+
+1. Create a [Last.fm](https://www.last.fm) account and connect Spotify under **Settings → Applications**.
+2. In **Settings → Privacy**, make sure **Hide recent listening information** is **OFF** — otherwise the API returns error 17 and the widget stays on the unavailable state.
+3. Create an API account at <https://www.last.fm/api/account/create> (the callback URL can be left empty; the shared secret is not needed for reading recent tracks).
+4. Set these variables in the host environment (never in the repository):
+
+| Variable | Notes |
+| --- | --- |
+| `LASTFM_API_KEY` | API key from the API account |
+| `LASTFM_USERNAME` | The Last.fm username whose recent tracks to show |
+
+### Spotify (fallback)
+
+Used only when the Last.fm vars are not set. Requires the app owner to have Spotify Premium (Development Mode apps 403 otherwise).
+
+1. Create an app at the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) (Web API).
+2. Add the redirect URI `http://127.0.0.1:8888/callback`.
+3. In a shell, set the app credentials for that process only and run the helper, e.g. PowerShell `$env:SPOTIFY_CLIENT_ID = '…'; $env:SPOTIFY_CLIENT_SECRET = '…'; npm run spotify:auth`. It opens the authorization page (scopes `user-read-currently-playing user-read-recently-played`) and prints the refresh token in the terminal. It writes no file.
+4. Set the three variables in the host environment (never in the repository):
+
+| Variable | Notes |
+| --- | --- |
+| `SPOTIFY_CLIENT_ID` | From the Spotify app |
+| `SPOTIFY_CLIENT_SECRET` | From the Spotify app |
+| `SPOTIFY_REFRESH_TOKEN` | Printed by `npm run spotify:auth` |
+
 ## GitHub activity
 
 The homepage renders real contribution data from `src/data/github-contributions.json`. It is a dated snapshot, not a live counter, and builds work offline without GitHub credentials. Refresh it using `gh auth login` and `npm run sync:github`; optionally pass an end date, e.g. `npm run sync:github -- 2026-10-30`. The script validates complete date coverage, levels, and totals before replacing the snapshot. It stores no access token or repository-private details.
 
 ## Current boundaries
 
-- Guestbook follows the Rimzz layout with sign-in/anonymous choices and a message area. GitHub login and posting are disabled until the backend pass. Anonymous fields are a preview only: values are never submitted or persisted, and there are no fabricated entries. The preview shows the planned validation: a malformed website or an emptied message gets an inline error when the field is left, the message shows how many characters are left, and one polite status region announces new errors and the last 100 characters. Escape or Back closes the form and returns focus to "Write anonymously". Without JavaScript the page shows only the disabled sign-in and "Signing opens soon."
+- Guestbook: anonymous notes are live once `GUESTBOOK_DB_URL` is set (see [Guestbook](#guestbook)); GitHub sign-in is deferred. Without JavaScript the page says that reading and signing need JavaScript.
 - Open source, Notes, and Off the clock are deferred and excluded from the homepage. Their components are retained for later.
-- The music widget is still a placeholder (no real listening data is connected). The résumé is the PDF supplied by the owner, pending a later update.
+- The music widget shows real listening data once a provider is configured — Last.fm (`LASTFM_API_KEY` + `LASTFM_USERNAME`, preferred) or Spotify (the three `SPOTIFY_*` vars), see [Music widget](#music-widget-spotify). The résumé is the PDF supplied by the owner, pending a later update.
 - Favicon PNG/ICO sizes are derived from the owner's supplied portrait. GitHub/source/Credly links use the owner's supplied public URLs.
 - Site remains local-only with `noindex, nofollow`. Pushing source to GitHub does not deploy the site.
 - Link previews: each page has its title and description plus Open Graph `og:type`, `og:site_name`, `og:title`, `og:description` and `twitter:card=summary`. They contain no absolute URL; `og:url`, a canonical link and `og:image` wait for a production domain.
