@@ -44,6 +44,16 @@ Desktop wheel/trackpad scrolling is gently smoothed by [Lenis](https://github.co
 
 **Maintenance notes.** The feel is tuned by one value: `lerp: 0.12` in `init()` (lower = smoother/slower settle, higher = snappier; `smoothWheel: true`, `syncTouch: false`). Do not add a numeric `scrollTo` offset — keep CSS `scroll-margin-top` as the single offset source. Keep one Lenis instance and one rAF loop; `init()`/`destroy()` are idempotent. If you upgrade Lenis, re-confirm the stylesheet path (`lenis/dist/lenis.css`), the `data-lenis-prevent` / `data-lenis-prevent-horizontal` attribute names, and that `destroy()` still leaves no `overflow`/height lock.
 
+## Contact water scene
+
+The contact panel opens with an original canvas drawing of a calm water surface (`src/scripts/water-scene.ts`, mounted from `Contact.astro`): perspective-ruled sage hairlines drift on two slow waves, steep wave faces are re-stroked in a deeper sage, and slow ripples spread from occasional ambient points, from a tap or click, and (mouse/pen) from pointer movement. The box is reserved by `aspect-ratio: 16 / 9`, so nothing shifts when the canvas starts.
+- **Colors** come from the `--scene-*` tokens in `tokens.css` and are re-read when the theme changes; no reload needed.
+- **Motion policy.** It animates only while `html[data-motion]` is `full`, the scene is on screen (IntersectionObserver) and the tab is visible (`visibilitychange`). Otherwise the loop is cancelled. Animation Off and reduced motion under System show one still frame.
+- **Cost limits.** Device pixel ratio is capped at 2, or 1.5 on `(max-width: 767px), (pointer: coarse)`, where it also draws at about 30fps with fewer samples and a smaller ripple pool.
+- **Input.** Passive `pointerdown`/`pointermove` listeners only; no wheel, scroll or touchmove listeners and no `preventDefault`, so swipes over the scene scroll the page and pinch-zoom still works.
+- **Fallback.** Without JS or canvas, the wrapper's CSS background (a sage gradient with still hairlines) is the scene. The canvas fades in after its first frame.
+- **Shared motion budget.** While the scene animates, `<html>` carries `data-scene-active`. Other decorative loops must pause while it is present; subscribe with `onSceneActiveChange()` from `src/scripts/motion-budget.ts`.
+
 ## GitHub activity
 
 The homepage renders real contribution data from `src/data/github-contributions.json`. It is a dated snapshot, not a live counter, and builds work offline without GitHub credentials. Refresh it using `gh auth login` and `npm run sync:github`; optionally pass an end date, e.g. `npm run sync:github -- 2026-10-30`. The script validates complete date coverage, levels, and totals before replacing the snapshot. It stores no access token or repository-private details.
@@ -52,6 +62,6 @@ The homepage renders real contribution data from `src/data/github-contributions.
 
 - Guestbook follows the Rimzz layout with sign-in/anonymous choices and a message area. GitHub login and posting are disabled until the backend pass. Anonymous fields are a preview only: values are never submitted or persisted, and there are no fabricated entries.
 - Open source, Notes, and Off the clock are deferred and excluded from the homepage. Their components are retained for later.
-- Contact scene and music widget are still placeholders. The résumé is the PDF supplied by the owner, pending a later update.
+- The music widget is still a placeholder (no real listening data is connected). The résumé is the PDF supplied by the owner, pending a later update.
 - Favicon PNG/ICO sizes are derived from the owner's supplied portrait. GitHub/source/Credly links use the owner's supplied public URLs.
 - Site remains local-only with `noindex, nofollow`. Pushing source to GitHub does not deploy the site.

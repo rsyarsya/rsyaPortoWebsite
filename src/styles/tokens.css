@@ -41,6 +41,13 @@
   --color-cal-3: #5A8068;
   --color-cal-4: #456657;
 
+  /* Contact water scene (the canvas reads these at runtime; keep plain colors). */
+  --scene-bg-top:     #F0EEE8;
+  --scene-bg-bottom:  #E2E8DF;
+  --scene-line:       #7EA88A;
+  --scene-crest:      #456657;
+  --scene-line-still: rgb(126 168 138 / 30%);
+
   /* Elevation */
   --shadow-nav:   0 3px 10px rgb(0 0 0 / 6%);
   --shadow-dock:  0 4px 20px rgb(41 40 36 / 8%);
@@ -89,6 +96,13 @@
   --color-cal-2: #5A8068;
   --color-cal-3: #7EA88A;
   --color-cal-4: #A8BDA0;
+
+  /* Contact water scene */
+  --scene-bg-top:     #2D2D28;
+  --scene-bg-bottom:  #2A322C;
+  --scene-line:       #5A8068;
+  --scene-crest:      #A8BDA0;
+  --scene-line-still: rgb(90 128 104 / 40%);
 
   /* Elevation: darker canvas needs a stronger shadow to read at all. */
   --shadow-nav:   0 3px 10px rgb(0 0 0 / 22%);

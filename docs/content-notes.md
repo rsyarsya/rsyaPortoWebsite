@@ -27,7 +27,7 @@ Experience now summarizes HydroConnect, Technocorner, FIND IT!, and KMTETI socia
 
 Contact now has internship copy and working email/LinkedIn actions. Footer email/résumé/LinkedIn links remain functional. Source/résumé links do not imply updated CV content. No personal phone number is added to the site.
 
-Open source, Notes, Off the clock, Contributions, Guestbook, the contact scene, and the music widget remain accepted placeholders because no corresponding original material/account integrations were supplied. These are remaining content tasks, not completed features. No deep project pages, extra research, animations, or deployment in this pass.
+Open source, Notes, Off the clock, Contributions, Guestbook, and the music widget remain accepted placeholders because no corresponding original material/account integrations were supplied. These are remaining content tasks, not completed features. No deep project pages, extra research, animations, or deployment in this pass. The contact scene is now decorative original artwork (a calm water surface tied to the HydroConnect/HydroSense water work) and carries no content claims.
 
 Latest link preferences: hero has exactly two actions (Get in touch and My résumé). LinkedIn appears only in the footer. Credly is added to the footer using the exact user-supplied dashboard URL, `https://www.credly.com/earner/dashboard/home`; this is not a verified public badge profile. Astro check/build passed; generated HTML verified for two hero links, one LinkedIn link, and the supplied Credly destination.
 
