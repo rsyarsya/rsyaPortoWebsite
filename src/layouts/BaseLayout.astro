@@ -5,7 +5,10 @@ import '@fontsource/source-sans-3/latin-400.css';
 import '@fontsource/source-sans-3/latin-600.css';
 import '../styles/global.css';
 import ScrollEdges from '../components/layout/ScrollEdges.astro';
+import AsciiBackground from '../components/layout/AsciiBackground.astro';
 import preferencesInit from '../scripts/preferences-init.js?raw';
+// Margin-only ASCII water background. Set to false to ship without it (no markup, no script).
+const ASCII_BACKGROUND_ENABLED = true;
 
 interface Props { title?: string; description?: string; }
 const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Information Technology student at Universitas Gadjah Mada focused on data, AI, cloud, and IoT. Seeking a six-month internship starting January 2027.' } = Astro.props;
@@ -26,6 +29,7 @@ const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Infor
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
+    {ASCII_BACKGROUND_ENABLED && <AsciiBackground />}
     <ScrollEdges />
     <script>
       import '../scripts/smooth-scroll';

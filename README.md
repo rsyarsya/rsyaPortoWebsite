@@ -54,6 +54,16 @@ The contact panel opens with an original canvas drawing of a calm water surface 
 - **Fallback.** Without JS or canvas, the wrapper's CSS background (a sage gradient with still hairlines) is the scene. The canvas fades in after its first frame.
 - **Shared motion budget.** While the scene animates, `<html>` carries `data-scene-active`. Other decorative loops must pause while it is present; subscribe with `onSceneActiveChange()` from `src/scripts/motion-budget.ts`.
 
+## ASCII background
+
+Faint water-current glyphs (`~` crests, `-` shoulders, `·` spray) drift slowly in the empty page margins (`src/components/layout/AsciiBackground.astro` + `src/scripts/ascii-background.ts`, original code). It is decoration only: `aria-hidden`, `pointer-events: none`, hidden in print and forced-colors mode (no loop runs there).
+- **Never behind text.** Two fixed canvases sit against the left and right viewport edges, each at most 320px wide and ending at least 32px before `main`, with alpha fading in over 96px from the inner edge. On wide screens the extra margin next to the column stays empty, and the drawing cost stays at the 1440px level. Strips narrower than 96px are not drawn, so phones, tablets in portrait and most viewports under ~1000px (or Wide/Wider layouts that fill the screen) show nothing and run no loop.
+- **Stacking.** The layer sits at `z-index: 1`: above the in-flow content, which it never overlaps, and below the viewport edge blur (25) and the navbar (40). Placed under the content (`z-index: -1`), it made Chromium switch all page text from subpixel to grayscale antialiasing on DPR-1 screens.
+- **Colors** come from `--ascii-glyph` and `--ascii-alpha` in `tokens.css` and follow theme changes live.
+- **Cost limits.** Each glyph type has a fixed alpha, so an update redraws only the cells whose glyph changed (about 14 per update at 1440px). Canvas DPR is capped at 1.5 (1 on coarse pointers).
+- **Motion policy.** About 8 updates per second (5, with larger cells and DPR 1, on `(pointer: coarse)`). Each update is a timer followed by one `requestAnimationFrame`, so the page is not woken at 60Hz in between. It runs only while `html[data-motion]` is `full`, the tab is visible and the contact scene is not animating (`onSceneActiveChange()`; the last frame stays while the scene runs). Animation Off and reduced motion under System show one still frame. No scroll, wheel or pointer listeners.
+- **Turning it off.** Set `ASCII_BACKGROUND_ENABLED = false` in `BaseLayout.astro`: the pages then contain no layer markup and load no background script.
+
 ## GitHub activity
 
 The homepage renders real contribution data from `src/data/github-contributions.json`. It is a dated snapshot, not a live counter, and builds work offline without GitHub credentials. Refresh it using `gh auth login` and `npm run sync:github`; optionally pass an end date, e.g. `npm run sync:github -- 2026-10-30`. The script validates complete date coverage, levels, and totals before replacing the snapshot. It stores no access token or repository-private details.
