@@ -5,8 +5,14 @@ import '@fontsource/source-sans-3/latin-400.css';
 import '@fontsource/source-sans-3/latin-600.css';
 import '../styles/global.css';
 import ScrollEdges from '../components/layout/ScrollEdges.astro';
+import AsciiBackground from '../components/layout/AsciiBackground.astro';
+import CommandPalette from '../components/ui/CommandPalette.astro';
 import preferencesInit from '../scripts/preferences-init.js?raw';
+import { profile } from '../data/profile';
+// Margin-only ASCII water background. Set to false to ship without it (no markup, no script).
+const ASCII_BACKGROUND_ENABLED = true;
 
+// Link previews reuse title/description. og:url, canonical and og:image need an absolute URL, so they wait for a production domain.
 interface Props { title?: string; description?: string; }
 const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Information Technology student at Universitas Gadjah Mada focused on data, AI, cloud, and IoT. Seeking a six-month internship starting January 2027.' } = Astro.props;
 ---
@@ -17,16 +23,23 @@ const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Infor
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
     <script is:inline set:html={preferencesInit} />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <title>{title}</title>
   </head>
-  <body spellcheck="false">
+  <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
+    {ASCII_BACKGROUND_ENABLED && <AsciiBackground />}
     <ScrollEdges />
+    <CommandPalette />
     <script>
       import '../scripts/smooth-scroll';
     </script>

@@ -1,0 +1,15 @@
+<!-- Decorative current glyphs in the page margins (src/scripts/ascii-background.ts). Mounted from BaseLayout behind the ASCII_BACKGROUND_ENABLED flag. -->
+<div class="ascii-background" data-ascii-background aria-hidden="true"><canvas></canvas><canvas></canvas></div>
+<script>
+  import '../../scripts/ascii-background';
+</script>
+<style>
+  /* z-index 1: above the in-flow content (the strips never overlap it), below ScrollEdges (25) and the header (40).
+     Under the content (z-index -1) Chromium switched all page text from subpixel to grayscale antialiasing on DPR-1 screens. */
+  .ascii-background { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 1200ms ease-out; }
+  .ascii-background[data-ready] { opacity: 1; }
+  /* The script sets each strip's left/width; width 0 until then, so nothing shifts or shows early. */
+  canvas { position: absolute; top: 0; display: block; width: 0; height: 100%; }
+  :global(:root[data-motion='reduce']) .ascii-background { transition: none; }
+  @media print, (forced-colors: active) { .ascii-background { display: none; } }
+</style>

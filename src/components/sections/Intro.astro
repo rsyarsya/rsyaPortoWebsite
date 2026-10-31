@@ -16,8 +16,8 @@ import { profile } from '../../data/profile';
     <div><p>Available now</p><p class="availability-detail">Seeking a 6-month internship starting <time datetime="2027-01">January 2027</time>.</p></div>
   </div>
   <div class="hero-actions">
-    <a class="hero-action primary" href={`mailto:${profile.email}`}><Icon name="contact" />Get in touch</a>
-    <a class="hero-action secondary" href={profile.resume} target="_blank" rel="noopener noreferrer" aria-label="My résumé (PDF, opens in a new tab)">My résumé<Icon name="arrow-up-right" /></a>
+    <a class="button button-primary" href={`mailto:${profile.email}`} data-contact-open><Icon name="contact" />Get in touch</a>
+    <a class="button button-secondary" href={profile.resume} target="_blank" rel="noopener noreferrer" aria-label="My résumé (PDF, opens in a new tab)">My résumé<Icon name="arrow-up-right" /></a>
   </div>
 </section>
 <style>
@@ -28,13 +28,8 @@ import { profile } from '../../data/profile';
   .availability-dot { flex: 0 0 7px; height: 7px; margin-top: 8px; border-radius: 50%; background: var(--color-accent); }
   .availability-detail { font-size: 14px; color: var(--color-muted); margin-top: 2px; }
   .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
-  .hero-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid transparent; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; }
-  .primary { background: var(--color-btn-primary-bg); color: var(--color-btn-primary-fg); }
-  .primary:hover { background: var(--color-btn-primary-hover-bg); }
-  .secondary { border-color: var(--color-border); background: var(--color-surface); }
-  .secondary:hover { border-color: var(--color-border-interactive); }
   @media (max-width: 375px) {
     .hero-actions { gap: 8px; }
-    .hero-action { padding-inline: 12px; }
+    .hero-actions .button { padding-inline: 12px; }
   }
 </style>

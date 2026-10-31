@@ -18,8 +18,8 @@ for (const day of snapshot.days) {
 ---
 <section id="contributions" aria-labelledby="contributions-title">
   <div class="activity-heading"><SectionHeading id="contributions-title" title="Contributions" /><a href={profile.github}>@{snapshot.username}</a></div>
-  <p class="activity-total"><strong>{snapshot.total.toLocaleString('en')}</strong> contributions in the past year</p>
-  <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar. Scroll horizontally to explore the year." data-lenis-prevent>
+  <p class="section-description activity-total"><strong>{snapshot.total.toLocaleString('en')}</strong> contributions in the past year</p>
+  <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar. Scroll horizontally to explore the year." data-lenis-prevent-horizontal>
     <svg viewBox={`0 0 ${width} 116`} width={width} height="116" role="img" aria-labelledby="calendar-title calendar-description">
       <title id="calendar-title">{snapshot.total} GitHub contributions, {formatDate(snapshot.from)} to {formatDate(snapshot.through)}</title>
       <desc id="calendar-description">Each square represents a day. Darker squares indicate more contributions. A monthly text summary is available below.</desc>
@@ -32,7 +32,7 @@ for (const day of snapshot.days) {
     </svg>
   </div>
   <p class="scroll-hint">Scroll to explore the year.</p>
-  <div class="calendar-caption"><span>Updated <time datetime={snapshot.through}>{formatDate(snapshot.through)}</time></span><div class="legend" aria-label="Legend from fewer to more contributions"><span>Less</span>{colors.map((_color, i) => <i class={`cal-swatch cal-swatch-${i}`} aria-hidden="true"></i>)}<span>More</span></div></div>
+  <div class="calendar-caption"><span>Updated <time datetime={snapshot.through}>{formatDate(snapshot.through)}</time></span><div class="legend" role="group" aria-label="Legend from fewer to more contributions"><span>Less</span>{colors.map((_color, i) => <i class={`cal-swatch cal-swatch-${i}`} aria-hidden="true"></i>)}<span>More</span></div></div>
   <details class="monthly-summary"><summary>Activity by month</summary><ul>{[...monthTotals].map(([month, count]) => <li><span>{new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-01T00:00:00Z`))}</span><span>{count} contributions</span></li>)}</ul><a href={snapshot.source}>View this period on GitHub</a></details>
 </section>
 <script>
@@ -45,11 +45,10 @@ for (const day of snapshot.days) {
   .activity-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
   .activity-heading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: var(--color-muted); text-decoration: none; }
   .activity-heading a:hover { text-decoration: underline; }
-  .activity-total { margin-top: -8px; margin-bottom: 22px; color: var(--color-muted); font-size: 15px; }
+  .activity-total { font-size: 15px; }
   .activity-total strong { color: var(--color-text); font-weight: 600; }
   .calendar-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 8px; }
   .scroll-hint { display: none; font-size: 12px; color: var(--color-muted); margin-top: 4px; }
-  .calendar-scroll:focus-visible, summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: 4px; }
   svg { display: block; min-width: 640px; }
   svg text { fill: var(--color-muted); font-family: var(--font-sans); font-size: 10px; }
   .calendar-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--color-muted); }

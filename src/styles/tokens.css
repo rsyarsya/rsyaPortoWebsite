@@ -1,4 +1,6 @@
 :root {
+  /* Native scrollbars, form controls and UA defaults follow the theme. */
+  color-scheme: light;
 
   /* ── Semantic color tokens ───────────────────────────────────────── */
   --color-bg:               #FAF9F6;
@@ -7,10 +9,23 @@
   --color-text:             #292824;
   --color-text-muted:       #69665F;
   --color-border:           #DDDAD2;
-  --color-border-interactive: #B0ADA4;
+  /* ≥3:1 against bg, surface and surface-hover (input borders, radio rings). */
+  --color-border-interactive: #85827A;
   --color-accent:           #456657;
   --color-accent-fg:        #FAF9F6;
   --color-focus:            #456657;
+  /* One keyboard focus ring for every control (global.css applies it). */
+  --focus-ring:             2px solid var(--color-focus);
+  --focus-offset:           2px;
+  --color-placeholder:      var(--color-text-muted);
+
+  /* Disabled controls: readable but clearly inactive (no opacity fade). */
+  --color-disabled-bg:      var(--color-surface-hover);
+  --color-disabled-fg:      var(--color-text-muted);
+  --color-disabled-border:  var(--color-border);
+
+  /* Form validation errors (text and invalid field border): ≥4.5:1 on bg, surface and surface-hover. */
+  --color-error:            #9E4436;
 
   /* Primary button */
   --color-btn-primary-bg:       #292824;
@@ -18,7 +33,8 @@
   --color-btn-primary-hover-bg: #44433E;
 
   /* Navbar */
-  --color-nav-bg:     rgba(250, 249, 246, 0.85);
+  /* 92% keeps muted nav labels ≥4.5:1 even over solid dark content. */
+  --color-nav-bg:     rgba(250, 249, 246, 0.92);
   --color-nav-border: #DDDAD2;
 
   /* Contribution calendar */
@@ -28,10 +44,23 @@
   --color-cal-3: #5A8068;
   --color-cal-4: #456657;
 
-  /* ── Legacy aliases (keep while components reference them) ───────── */
-  --color-background: var(--color-bg);
+  /* Contact water scene (the canvas reads these at runtime; keep plain colors). */
+  --scene-bg-top:     #F0EEE8;
+  --scene-bg-bottom:  #E2E8DF;
+  --scene-line:       #7EA88A;
+  --scene-crest:      #456657;
+  --scene-line-still: rgb(126 168 138 / 30%);
+  /* Margin ASCII background (canvas reads these): glyph color and peak alpha. */
+  --ascii-glyph: #7EA88A;
+  --ascii-alpha: 0.34;
+
+  /* Elevation */
+  --shadow-nav:   0 3px 10px rgb(0 0 0 / 6%);
+  --shadow-dock:  0 4px 20px rgb(41 40 36 / 8%);
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 9%);
+
+  /* ── Legacy alias (used by most components) ─────────────────────── */
   --color-muted:      var(--color-text-muted);
-  --color-nav:        #F5F4EF;
 
   /* ── Typography ─────────────────────────────────────────────────── */
   --font-serif: 'Source Serif 4', Georgia, serif;
@@ -45,6 +74,7 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
 
   --color-bg:               #242420;
   --color-surface:          #2D2D28;
@@ -52,10 +82,11 @@
   --color-text:             #F1EFE8;
   --color-text-muted:       #B7B4A9;
   --color-border:           #43433B;
-  --color-border-interactive: #6B6860;
+  --color-border-interactive: #85827A;
   --color-accent:           #A8BDA0;
   --color-accent-fg:        #242420;
   --color-focus:            #A8BDA0;
+  --color-error:            #E0A092;
 
   /* Primary button */
   --color-btn-primary-bg:       #F1EFE8;
@@ -63,7 +94,7 @@
   --color-btn-primary-hover-bg: #D8D5CC;
 
   /* Navbar */
-  --color-nav-bg:     rgba(45, 45, 40, 0.85);
+  --color-nav-bg:     rgba(45, 45, 40, 0.92);
   --color-nav-border: #43433B;
 
   /* Contribution calendar */
@@ -73,10 +104,23 @@
   --color-cal-3: #7EA88A;
   --color-cal-4: #A8BDA0;
 
-  /* Legacy aliases */
-  --color-background: var(--color-bg);
+  /* Contact water scene */
+  --scene-bg-top:     #2D2D28;
+  --scene-bg-bottom:  #2A322C;
+  --scene-line:       #5A8068;
+  --scene-crest:      #A8BDA0;
+  --scene-line-still: rgb(90 128 104 / 40%);
+  /* Margin ASCII background */
+  --ascii-glyph: #5A8068;
+  --ascii-alpha: 0.38;
+
+  /* Elevation: darker canvas needs a stronger shadow to read at all. */
+  --shadow-nav:   0 3px 10px rgb(0 0 0 / 22%);
+  --shadow-dock:  0 4px 20px rgb(0 0 0 / 28%);
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 32%);
+
+  /* Legacy alias */
   --color-muted:      var(--color-text-muted);
-  --color-nav:        #2D2D28;
 }
 
 :root[data-layout='wide']   { --content-width: 880px; }

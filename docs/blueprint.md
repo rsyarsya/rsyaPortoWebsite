@@ -4,7 +4,7 @@
 
 Two static routes: homepage and `/guestbook/`. Homepage: Header, Intro, Experience, Selected projects, Education, Highlights, Contributions, Guestbook invitation, Contact, Footer. Open source, Notes, and Off the clock are deferred and hidden; their components are retained for later.
 
-Layout and eventual scroll/footer direction follow Rimzz; section breadth follows Ashutoshx7. Hero, Experience, Selected projects, Education, Highlights, and Contact have source-backed content. Contributions uses a checked-in GitHub snapshot, refreshed manually with the CLI. Guestbook has a separate preview route with disabled authentication/posting. Working destinations include email, résumé, LinkedIn, GitHub, source repository, and the public Credly profile. Contact scene and music widget remain placeholders. Light theme and ordinary anchor navigation remain. No motion, ASCII, backend, or deployment. See `content-notes.md` for source decisions.
+Layout and eventual scroll/footer direction follow Rimzz; section breadth follows Ashutoshx7. Hero, Experience, Selected projects, Education, Highlights, and Contact have source-backed content. Contributions uses a checked-in GitHub snapshot, refreshed manually with the CLI. Guestbook has a separate preview route with disabled authentication/posting. Working destinations include email, résumé, LinkedIn, GitHub, source repository, and the public Credly profile. The contact scene is an original canvas water surface (see README); the music widget remains a placeholder. A faint ASCII water-current background appears only in the outer page margins on wide viewports (see README; flag `ASCII_BACKGROUND_ENABLED` in `BaseLayout.astro`). No backend or deployment. See `content-notes.md` for source decisions.
 
 ## Source responsibilities
 
@@ -29,7 +29,7 @@ Layout and eventual scroll/footer direction follow Rimzz; section breadth follow
 - Desktop begins at 768px. Navigation blends into the page at the top, hides on downward scroll, and appears as a translucent capsule on upward scroll. Below 768px it is a bottom icon dock with directional hiding. Focus/menu interaction keeps navigation available. The name appears only in the hero. List metadata moves beneath titles on mobile. Footer link groups remain three compact columns on mobile, with its identity/widget row stacked above them.
 - Off the clock is one framed personal collection with four static windows: a large creative-work panel, two stacked interest panels, and a wide note panel. At 540px and below the windows become a single column. Window dots are decorative, not controls. All visual media and the footer listening widget remain explicit placeholders.
 - Name: 44/36px; section titles: 28/25px; body: 17px with 1.65 line height; metadata: 14px. Paragraphs are limited to 65ch.
-- Visual panels: 12px radius. Contact scene: 16:9. List separators are thin and quiet. No decorative numbering, custom cursor, shadow kit, or entrance effects.
+- Visual panels: 12px radius. Contact scene: 16:9, a canvas water surface over a CSS still-frame fallback. List separators are thin and quiet. No decorative numbering, custom cursor, shadow kit, or entrance effects.
 
 ## Component contracts
 

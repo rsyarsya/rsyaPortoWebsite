@@ -1,0 +1,285 @@
+---
+import Icon from './Icon.astro';
+import { profile } from '../../data/profile';
+---
+<!-- One contact dialog for every [data-contact-open] trigger. Without JS the triggers stay mailto links. -->
+<dialog id="contact-dialog" class="contact-dialog" aria-labelledby="contact-dialog-title" aria-describedby="contact-dialog-description" data-email={profile.email} data-lenis-prevent>
+  <form method="post" action="/api/contact" novalidate>
+    <header class="dialog-header">
+      <h2 id="contact-dialog-title">Send me a message</h2>
+      <button type="button" class="dialog-x" data-dialog-close aria-label="Close"><Icon name="close" /></button>
+    </header>
+    <div class="dialog-body">
+      <p id="contact-dialog-description" class="muted">Write about an internship, a project, or anything else. I'll reply by email.</p>
+      <div class="fields" data-fields>
+        <p class="required-note">Fields marked <span aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.</p>
+        <div class="field">
+          <label for="contact-dialog-name">Name <span aria-hidden="true">*</span></label>
+          <input id="contact-dialog-name" name="name" type="text" autocomplete="name" maxlength="80" required aria-invalid="false" aria-describedby="contact-dialog-name-error" />
+          <p id="contact-dialog-name-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="contact-dialog-email">Email <span aria-hidden="true">*</span></label>
+          <input id="contact-dialog-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" maxlength="254" required aria-invalid="false" aria-describedby="contact-dialog-email-error" />
+          <p id="contact-dialog-email-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="contact-dialog-message">Message <span aria-hidden="true">*</span></label>
+          <textarea id="contact-dialog-message" name="message" rows="6" maxlength="2000" required aria-invalid="false" aria-describedby="contact-dialog-message-error"></textarea>
+          <p id="contact-dialog-message-error" class="field-error" hidden></p>
+        </div>
+        <!-- Honeypot: hidden from people and assistive tech; bots tend to fill it. -->
+        <div class="trap" aria-hidden="true">
+          <label for="contact-dialog-trap">Leave this field empty</label>
+          <input id="contact-dialog-trap" name="trap" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+      </div>
+      <div id="contact-dialog-status" class="form-status" role="status" hidden></div>
+    </div>
+    <footer class="dialog-actions">
+      <button type="button" class="button button-secondary" data-dialog-close>Close</button>
+      <button type="submit" class="button button-primary" data-submit>Send message</button>
+    </footer>
+  </form>
+</dialog>
+<script>
+  import { lockScroll, unlockScroll } from '../../scripts/smooth-scroll';
+
+  type State = 'idle' | 'submitting' | 'success' | 'error';
+  type FieldName = 'name' | 'email' | 'message';
+  type Field = HTMLInputElement | HTMLTextAreaElement;
+
+  const dialog = document.querySelector<HTMLDialogElement>('#contact-dialog');
+  if (dialog && typeof dialog.showModal === 'function') setup(dialog);
+
+  function setup(dialog: HTMLDialogElement) {
+    const form = dialog.querySelector('form')!;
+    const fieldsGroup = dialog.querySelector<HTMLElement>('[data-fields]')!;
+    const submit = dialog.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const status = dialog.querySelector<HTMLElement>('#contact-dialog-status')!;
+    const closeButton = dialog.querySelector<HTMLButtonElement>('.dialog-actions [data-dialog-close]')!;
+    const ownerEmail = dialog.dataset.email ?? '';
+    const fields: Record<FieldName, Field> = {
+      name: form.querySelector('#contact-dialog-name')!,
+      email: form.querySelector('#contact-dialog-email')!,
+      message: form.querySelector('#contact-dialog-message')!,
+    };
+    const trap = form.querySelector<HTMLInputElement>('#contact-dialog-trap')!;
+    const dirty = new Set<FieldName>();
+    let state: State = 'idle';
+    let returnTo: HTMLElement | null = null;
+
+    function setState(next: State) {
+      state = next;
+      form.dataset.state = next;
+      form.setAttribute('aria-busy', String(next === 'submitting'));
+      submit.disabled = next === 'submitting';
+      submit.textContent = next === 'submitting' ? 'Sending…' : 'Send message';
+      submit.hidden = next === 'success';
+      fieldsGroup.hidden = next === 'success';
+    }
+
+    /** Status text built with text nodes only; `withEmail` appends the direct email alternative. */
+    function showStatus(kind: 'info' | 'success' | 'error', text: string, withEmail = false) {
+      status.replaceChildren(document.createTextNode(text));
+      if (withEmail) {
+        const link = document.createElement('a');
+        link.href = `mailto:${ownerEmail}`;
+        link.textContent = ownerEmail;
+        status.append(' You can also email me at ', link, '.');
+      }
+      status.dataset.kind = kind;
+      status.hidden = false;
+    }
+    function clearStatus() {
+      status.replaceChildren();
+      status.hidden = true;
+    }
+
+    function check(name: FieldName, raw: string): string {
+      const value = raw.trim();
+      if (name === 'name') return !value ? 'Enter your name.' : value.length > 80 ? 'Use 80 characters or fewer.' : '';
+      if (name === 'email') {
+        if (!value) return 'Enter your email address.';
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254 ? '' : 'Enter a valid email address, like name@example.com.';
+      }
+      return !value ? 'Enter a message.' : value.length > 2000 ? 'Use 2,000 characters or fewer.' : '';
+    }
+    function setError(name: FieldName, text: string) {
+      const field = fields[name];
+      const error = document.getElementById(`${field.id}-error`)!;
+      error.textContent = text;
+      error.hidden = !text;
+      field.setAttribute('aria-invalid', String(Boolean(text)));
+    }
+
+    // Pressing Send or Close blurs the field first. Showing an error then would shift the
+    // buttons under the pointer and swallow the click, so blur validation skips that case.
+    const actions = dialog.querySelector<HTMLElement>('.dialog-actions')!;
+    let pressingAction = false;
+    actions.addEventListener('pointerdown', () => { pressingAction = true; });
+    addEventListener('pointerup', () => setTimeout(() => { pressingAction = false; }));
+    addEventListener('pointercancel', () => { pressingAction = false; });
+
+    for (const name of Object.keys(fields) as FieldName[]) {
+      const field = fields[name];
+      field.addEventListener('input', () => {
+        dirty.add(name);
+        if (field.getAttribute('aria-invalid') === 'true') setError(name, check(name, field.value));
+      });
+      // Errors appear when an edited field is left, and clear as soon as it is fixed.
+      field.addEventListener('blur', event => {
+        if (pressingAction || actions.contains((event as FocusEvent).relatedTarget as Node | null)) return;
+        if (dirty.has(name) && dialog.open) setError(name, check(name, field.value));
+      });
+    }
+
+    function open(trigger: HTMLElement) {
+      if (dialog.open) return;
+      returnTo = trigger;
+      if (state !== 'submitting') {
+        setState('idle');
+        clearStatus();
+      }
+      dialog.showModal();
+      lockScroll();
+      // Fine pointers start in Name; on touch the native default (the X) avoids popping the keyboard.
+      if (matchMedia('(pointer: fine)').matches && state !== 'submitting') fields.name.focus();
+    }
+
+    // The draft stays in the fields when the dialog closes; only a successful send clears it.
+    dialog.addEventListener('close', () => {
+      unlockScroll();
+      returnTo?.focus({ preventScroll: true });
+      returnTo = null;
+    });
+    for (const button of dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]')) {
+      button.addEventListener('click', () => dialog.close());
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (state === 'submitting') return;
+      const errors = (Object.keys(fields) as FieldName[]).map(name => [name, check(name, fields[name].value)] as const);
+      for (const [name, text] of errors) setError(name, text);
+      const firstInvalid = errors.find(([, text]) => text);
+      if (firstInvalid) {
+        clearStatus();
+        fields[firstInvalid[0]].focus();
+        return;
+      }
+
+      setState('submitting');
+      showStatus('info', 'Sending your message…');
+      let response: Response;
+      let data: { ok?: boolean; code?: string; errors?: Partial<Record<FieldName, string>> } = {};
+      try {
+        response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: fields.name.value, email: fields.email.value, message: fields.message.value, trap: trap.value }),
+        });
+        data = await response.json().catch(() => ({}));
+      } catch {
+        setState('error');
+        showStatus('error', "Couldn't reach the server. Check your connection and try again; your message is still here.", true);
+        return;
+      }
+
+      if (response.ok && data.ok) {
+        form.reset();
+        dirty.clear();
+        setState('success');
+        showStatus('success', "Thanks! The mail service accepted your message for delivery. I'll reply to the email address you entered.");
+        closeButton.focus();
+        return;
+      }
+      setState('error');
+      if (data.code === 'invalid' && data.errors) {
+        let first: FieldName | null = null;
+        for (const name of Object.keys(fields) as FieldName[]) {
+          const text = data.errors[name] ?? '';
+          setError(name, text);
+          if (text && !first) first = name;
+        }
+        showStatus('error', 'Check the highlighted fields, then send again.');
+        if (first) fields[first].focus();
+      } else if (data.code === 'not_configured') {
+        showStatus('error', "Sending from this site isn't set up yet, so your message was not sent. It's still here.", true);
+      } else if (data.code === 'rate_limited') {
+        showStatus('error', 'Too many messages were sent from your connection. Try again in a few minutes.', true);
+      } else {
+        showStatus('error', "Your message couldn't be sent. It's still here, so you can try again.", true);
+      }
+    });
+
+    // The command palette opens the dialog with this event and passes its own opener as the focus return target.
+    document.addEventListener('contact:open', event => {
+      open((event as CustomEvent<{ returnTo?: HTMLElement }>).detail?.returnTo ?? document.body);
+    });
+
+    for (const trigger of document.querySelectorAll<HTMLElement>('[data-contact-open]')) {
+      trigger.setAttribute('aria-haspopup', 'dialog');
+      trigger.addEventListener('click', event => {
+        // Modified and middle clicks keep the trigger's normal link behavior (mailto).
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        open(trigger);
+      });
+    }
+  }
+</script>
+<style>
+  [hidden] { display: none !important; }
+  .contact-dialog {
+    width: min(560px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+  }
+  .contact-dialog[open] { display: flex; }
+  .contact-dialog::backdrop { background: rgb(41 40 36 / 45%); }
+  :global([data-theme='dark']) .contact-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+  form { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+  .dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 20px 0 24px; }
+  .dialog-header h2 { padding-top: 6px; }
+  .dialog-x { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--color-muted); cursor: pointer; }
+  .dialog-x:hover { background: var(--color-surface); color: var(--color-text); }
+  .dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 24px 24px; }
+  .fields { display: grid; gap: 20px; margin-top: 16px; }
+  .required-note { font-size: 14px; color: var(--color-muted); }
+  .field { display: grid; gap: 6px; }
+  label { font-size: 15px; font-weight: 600; }
+  label span { color: var(--color-muted); font-weight: 400; }
+  input, textarea { width: 100%; min-height: 44px; border: 1px solid var(--color-border-interactive); border-radius: 8px; padding: 10px 12px; background: var(--color-bg); color: var(--color-text); font: 16px/1.5 var(--font-sans); }
+  textarea { resize: vertical; min-height: 132px; }
+  input[aria-invalid='true'], textarea[aria-invalid='true'] { border-color: var(--color-error); }
+  .field-error { font-size: 14px; color: var(--color-error); }
+  .trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .form-status { margin-top: 20px; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); font-size: 15px; overflow-wrap: anywhere; }
+  .form-status[data-kind='error'] { border-color: var(--color-error); }
+  .form-status[data-kind='success'] { border-color: var(--color-accent); }
+  .dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--color-border); }
+  .dialog-actions .button { cursor: pointer; font-family: inherit; }
+  .dialog-actions .button-secondary { color: var(--color-text); }
+  .dialog-actions .button:disabled { background: var(--color-disabled-bg); color: var(--color-disabled-fg); border-color: var(--color-disabled-border); cursor: progress; }
+  @media (max-width: 420px) {
+    .dialog-header { padding: 16px 12px 0 20px; }
+    .dialog-body { padding: 8px 20px 20px; }
+    .dialog-actions { padding: 12px 20px 16px; }
+    .dialog-actions .button { flex: 1 1 0; }
+  }
+  /* Opening motion only when the resolved Animation preference is full. */
+  :global(:root[data-motion='full']) .contact-dialog[open] { animation: contact-dialog-in 180ms ease-out; }
+  :global(:root[data-motion='full']) .contact-dialog[open]::backdrop { animation: contact-backdrop-in 180ms ease-out; }
+  @keyframes contact-dialog-in { from { opacity: 0; transform: translateY(8px); } }
+  @keyframes contact-backdrop-in { from { opacity: 0; } }
+</style>

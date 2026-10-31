@@ -16,6 +16,10 @@ let rafId = 0;
 // preempts and is never dropped.
 let isResolving = false;
 let pendingHash: string | null = null;
+// The URL hash is landed only if Lenis starts at page load (direct load /
+// cross-page link). Later inits (Animation setting, OS reduced motion, resizing back across
+// 768px) must keep the reader where they are, not jump back to the hash.
+let initialHashHandled = false;
 
 // --- Media queries for eligibility (desktop-class, not-mobile). ------------
 const pointerFine = matchMedia('(pointer: fine)');
@@ -76,8 +80,9 @@ function resolveHash(hash: string, immediate = false): void {
     pendingHash = null;
   });
 
-  // CSS scroll-margin-top is the single offset source; offset 0 lets CSS own
-  // the gap under the fixed navbar.
+  // CSS is the single offset source: Lenis subtracts the target's
+  // scroll-margin-top and the root scroll-padding-top (global.css), like native
+  // fragment scrolling, so offset 0 lets CSS own the gap under the fixed navbar.
   lenis?.scrollTo(target, { offset: 0, immediate });
   moveFocus(target);
 }
@@ -96,7 +101,10 @@ function onAnchorClick(event: MouseEvent): void {
   if (!validTarget(hash)) return; // Unknown target — let the browser handle it.
 
   event.preventDefault(); // Suppress native jump so it can't fight Lenis.
-  history.pushState({}, '', hash); // preventDefault suppressed the hash write.
+  // preventDefault suppressed the hash write. Like native same-fragment
+  // navigation, re-clicking the current hash replaces the entry.
+  if (hash === location.hash) history.replaceState(history.state, '', hash);
+  else history.pushState({}, '', hash);
   // Skip-to-content (#main) must be prompt, not a long glide.
   resolveHash(hash, hash === '#main');
 }
@@ -134,13 +142,19 @@ function init(): void {
       wheelMultiplier: 1,
       // We own anchors/history/focus ourselves for CSS-offset + a11y focus.
       anchors: false,
+      // html[data-motion] already folds in OS reduced motion (System) and the
+      // explicit On/Off choice; Lenis only exists while it is 'full', so its
+      // own media-query check would only override an explicit On.
+      respectReducedMotion: false,
     });
     rafId = requestAnimationFrame(raf);
     document.addEventListener('click', onAnchorClick);
     addEventListener('hashchange', onHashChange);
     addEventListener('popstate', onPopState);
-    // Land an initial hash (direct load / cross-page) after layout settles.
-    if (location.hash && validTarget(location.hash)) {
+    // Land an initial hash (direct load / cross-page) after layout settles,
+    // only when Lenis starts during the page-load evaluate(). A later init
+    // means native scrolling already handled the hash.
+    if (!initialHashHandled && location.hash && validTarget(location.hash)) {
       requestAnimationFrame(() => resolveHash(location.hash, true));
     }
   } catch (error) {
@@ -163,6 +177,31 @@ function destroy(): void {
   lenis = null;
 }
 
+// --- Scroll lock for modal dialogs. -----------------------------------------
+// Stops Lenis (if running) and the native document scroll, then restores the
+// exact position on unlock. Nested locks are counted. Elements that must still
+// scroll inside a locked page carry data-lenis-prevent.
+let lockCount = 0;
+let lockedY = 0;
+
+export function lockScroll(): void {
+  if (lockCount++ > 0) return;
+  lockedY = window.scrollY;
+  // Keep the scrollbar's space so the column and fixed bars do not shift.
+  const hasScrollbar = window.innerWidth > root.clientWidth;
+  lenis?.stop();
+  root.style.overflow = 'hidden';
+  if (hasScrollbar) root.style.scrollbarGutter = 'stable';
+}
+
+export function unlockScroll(): void {
+  if (lockCount === 0 || --lockCount > 0) return;
+  root.style.overflow = '';
+  root.style.scrollbarGutter = '';
+  lenis?.start();
+  if (window.scrollY !== lockedY) window.scrollTo({ top: lockedY, behavior: 'instant' });
+}
+
 function evaluate(): void {
   if (eligible()) init();
   else destroy();
@@ -183,3 +222,6 @@ for (const mql of [pointerFine, hoverHover, viewportMin]) {
 }
 
 evaluate();
+// Initial landing is decided once, at page load. If Lenis was off here, the
+// browser already landed the hash natively; later inits keep the reader put.
+initialHashHandled = true;
