@@ -1,42 +1,12 @@
 // Footer listening widget: reads GET /api/now-playing once the footer is near the
 // viewport, then refreshes about every 60 s while the tab is visible. No audio.
-// Data is rendered with textContent/attributes only; links must be open.spotify.com
-// (Spotify source) or www.last.fm (Last.fm source).
-
-type Source = 'lastfm' | 'spotify';
-type Link = { name: string; url: string };
-type Track = { name: string; url: string; artists: Link[]; album: { name: string; url: string; image: string | null } };
-type Data =
-  | { status: 'playing'; source: Source; track: Track }
-  | { status: 'recent'; source: Source; track: Track; playedAt: string }
-  | { status: 'none'; source: Source };
+// Validation lives in src/lib/now-playing-view.ts (links must be open.spotify.com for
+// the Spotify source or www.last.fm for Last.fm). Data is rendered with
+// textContent/attributes only; an artist without a safe link renders as plain text.
+import { NO_ARTIST, attribution, parseNowPlaying, sourceName, type NowPlaying as Data, type Source, type Track } from '../lib/now-playing-view';
 
 const REFRESH_MS = 60_000;
 const root = document.querySelector<HTMLElement>('[data-now-playing]');
-
-const isLink = (source: Source) => (url: unknown): url is string =>
-  typeof url === 'string'
-  && url.startsWith(source === 'lastfm' ? 'https://www.last.fm/' : 'https://open.spotify.com/');
-const isTrack = (t: any, source: Source): t is Track => {
-  const ok = isLink(source);
-  return t && typeof t.name === 'string' && ok(t.url)
-    && Array.isArray(t.artists) && t.artists.length > 0 && t.artists.every((a: any) => typeof a?.name === 'string' && ok(a.url))
-    && typeof t.album?.name === 'string' && ok(t.album.url)
-    && (t.album.image === null || (typeof t.album.image === 'string' && t.album.image.startsWith('https://')));
-};
-
-function parse(body: any): Data | null {
-  const source: Source = body?.source === 'lastfm' ? 'lastfm' : 'spotify';
-  if (body?.status === 'none') return { status: 'none', source };
-  if (body?.status === 'playing' && isTrack(body.track, source)) return { status: 'playing', source, track: body.track };
-  if (body?.status === 'recent' && isTrack(body.track, source) && !Number.isNaN(Date.parse(body.playedAt))) {
-    return { status: 'recent', source, track: body.track, playedAt: body.playedAt };
-  }
-  return null;
-}
-
-const attribution = (source: Source) => (source === 'lastfm' ? 'via Last.fm' : 'on Spotify');
-const sourceName = (source: Source) => (source === 'lastfm' ? 'Last.fm' : 'Spotify');
 
 const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto', style: 'short' });
 function ago(iso: string): string {
@@ -91,9 +61,11 @@ if (root) {
     art.replaceChildren(a);
     label.textContent = `${heading} ${attribution(source)}`;
     title.replaceChildren(link(track.url, track.name));
-    sub.replaceChildren(...track.artists.flatMap((artist, i) => (i ? [', ', link(artist.url, artist.name)] : [link(artist.url, artist.name)])));
+    // Strings become text nodes: artists without a safe link stay plain text.
+    const credits = track.artists.map(artist => (artist.href ? link(artist.href, artist.name) : artist.name));
+    sub.replaceChildren(...(credits.length ? credits.flatMap((credit, i) => (i ? [', ', credit] : [credit])) : [NO_ARTIST]));
     title.title = track.name;
-    sub.title = track.artists.map(artist => artist.name).join(', ');
+    sub.title = track.artists.map(artist => artist.name).join(', ') || NO_ARTIST;
   }
 
   function showText(state: string, heading: string, line: string, detail = '') {
@@ -131,7 +103,7 @@ if (root) {
         last = null;
         return fail();
       }
-      const data = res.ok ? parse(await res.json()) : null;
+      const data = res.ok ? parseNowPlaying(await res.json()) : null;
       if (!data) return fail();
       last = data;
       render(data);

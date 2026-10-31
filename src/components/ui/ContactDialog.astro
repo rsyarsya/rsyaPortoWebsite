@@ -34,11 +34,12 @@ import { profile } from '../../data/profile';
           <input id="contact-dialog-trap" name="trap" type="text" tabindex="-1" autocomplete="off" />
         </div>
       </div>
-      <div id="contact-dialog-status" class="form-status" role="status" hidden></div>
+      <div id="contact-dialog-status" class="form-status" role="status" tabindex="-1" hidden></div>
     </div>
     <footer class="dialog-actions">
       <button type="button" class="button button-secondary" data-dialog-close>Close</button>
       <button type="submit" class="button button-primary" data-submit>Send message</button>
+      <button type="button" class="button button-primary" data-new-message hidden>New message</button>
     </footer>
   </form>
 </dialog>
@@ -56,8 +57,8 @@ import { profile } from '../../data/profile';
     const form = dialog.querySelector('form')!;
     const fieldsGroup = dialog.querySelector<HTMLElement>('[data-fields]')!;
     const submit = dialog.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const newMessage = dialog.querySelector<HTMLButtonElement>('[data-new-message]')!;
     const status = dialog.querySelector<HTMLElement>('#contact-dialog-status')!;
-    const closeButton = dialog.querySelector<HTMLButtonElement>('.dialog-actions [data-dialog-close]')!;
     const ownerEmail = dialog.dataset.email ?? '';
     const fields: Record<FieldName, Field> = {
       name: form.querySelector('#contact-dialog-name')!,
@@ -69,6 +70,8 @@ import { profile } from '../../data/profile';
     let state: State = 'idle';
     let returnTo: HTMLElement | null = null;
 
+    // The state outlives the open dialog: closing never cancels a send or discards its result,
+    // and open() shows whatever the current state is.
     function setState(next: State) {
       state = next;
       form.dataset.state = next;
@@ -76,7 +79,15 @@ import { profile } from '../../data/profile';
       submit.disabled = next === 'submitting';
       submit.textContent = next === 'submitting' ? 'Sending…' : 'Send message';
       submit.hidden = next === 'success';
+      newMessage.hidden = next !== 'success';
       fieldsGroup.hidden = next === 'success';
+      // Read-only while sending, so the draft on screen is always the message being sent.
+      for (const field of Object.values(fields)) field.readOnly = next === 'submitting';
+    }
+
+    /** A result (or the sending notice) gets focus only while the dialog is open; a closed dialog only updates. */
+    function focusStatus() {
+      if (dialog.open) status.focus();
     }
 
     /** Status text built with text nodes only; `withEmail` appends the direct email alternative. */
@@ -137,15 +148,19 @@ import { profile } from '../../data/profile';
     function open(trigger: HTMLElement) {
       if (dialog.open) return;
       returnTo = trigger;
-      if (state !== 'submitting') {
-        setState('idle');
-        clearStatus();
-      }
       dialog.showModal();
       lockScroll();
+      // A send in progress or an earlier result is announced first.
+      if (state !== 'idle') status.focus();
       // Fine pointers start in Name; on touch the native default (the X) avoids popping the keyboard.
-      if (matchMedia('(pointer: fine)').matches && state !== 'submitting') fields.name.focus();
+      else if (matchMedia('(pointer: fine)').matches) fields.name.focus();
     }
+
+    newMessage.addEventListener('click', () => {
+      setState('idle');
+      clearStatus();
+      fields.name.focus();
+    });
 
     // The draft stays in the fields when the dialog closes; only a successful send clears it.
     dialog.addEventListener('close', () => {
@@ -169,20 +184,20 @@ import { profile } from '../../data/profile';
         return;
       }
 
+      // Snapshot of the values at submit time; the fields stay read-only until the response arrives.
+      const body = JSON.stringify({ name: fields.name.value, email: fields.email.value, message: fields.message.value, trap: trap.value });
       setState('submitting');
       showStatus('info', 'Sending your message…');
+      focusStatus(); // the disabled Send button would otherwise drop focus to the page
       let response: Response;
       let data: { ok?: boolean; code?: string; errors?: Partial<Record<FieldName, string>> } = {};
       try {
-        response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: fields.name.value, email: fields.email.value, message: fields.message.value, trap: trap.value }),
-        });
+        response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
         data = await response.json().catch(() => ({}));
       } catch {
         setState('error');
         showStatus('error', "Couldn't reach the server. Check your connection and try again; your message is still here.", true);
+        focusStatus();
         return;
       }
 
@@ -191,7 +206,7 @@ import { profile } from '../../data/profile';
         dirty.clear();
         setState('success');
         showStatus('success', "Thanks! The mail service accepted your message for delivery. I'll reply to the email address you entered.");
-        closeButton.focus();
+        focusStatus();
         return;
       }
       setState('error');
@@ -203,14 +218,18 @@ import { profile } from '../../data/profile';
           if (text && !first) first = name;
         }
         showStatus('error', 'Check the highlighted fields, then send again.');
-        if (first) fields[first].focus();
-      } else if (data.code === 'not_configured') {
+        if (first && dialog.open) fields[first].focus();
+        else focusStatus();
+        return;
+      }
+      if (data.code === 'not_configured') {
         showStatus('error', "Sending from this site isn't set up yet, so your message was not sent. It's still here.", true);
       } else if (data.code === 'rate_limited') {
         showStatus('error', 'Too many messages were sent from your connection. Try again in a few minutes.', true);
       } else {
         showStatus('error', "Your message couldn't be sent. It's still here, so you can try again.", true);
       }
+      focusStatus();
     });
 
     // The command palette opens the dialog with this event and passes its own opener as the focus return target.
@@ -261,12 +280,16 @@ import { profile } from '../../data/profile';
   input, textarea { width: 100%; min-height: 44px; border: 1px solid var(--color-border-interactive); border-radius: 8px; padding: 10px 12px; background: var(--color-bg); color: var(--color-text); font: 16px/1.5 var(--font-sans); }
   textarea { resize: vertical; min-height: 132px; }
   input[aria-invalid='true'], textarea[aria-invalid='true'] { border-color: var(--color-error); }
+  /* Read-only only while a message is sending. */
+  input[readonly], textarea[readonly] { border-color: var(--color-disabled-border); background: var(--color-disabled-bg); color: var(--color-disabled-fg); }
   .field-error { font-size: 14px; color: var(--color-error); }
   .trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .form-status { margin-top: 20px; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); font-size: 15px; overflow-wrap: anywhere; }
   .form-status[data-kind='error'] { border-color: var(--color-error); }
   .form-status[data-kind='success'] { border-color: var(--color-accent); }
+  /* The status takes focus to announce a result; keyboard users see the site's ring on it. */
+  .form-status:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
   .dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--color-border); }
   .dialog-actions .button { cursor: pointer; font-family: inherit; }
   .dialog-actions .button-secondary { color: var(--color-text); }

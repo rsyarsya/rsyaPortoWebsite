@@ -16,10 +16,16 @@ export interface NowPlayingOptions {
   timeoutMs?: number;
 }
 
+/** An artist credit. `url` is null when the provider gave no safe link; the name is still shown, as plain text. */
+export interface Artist {
+  name: string;
+  url: string | null;
+}
+
 export interface Track {
   name: string;
   url: string;
-  artists: { name: string; url: string }[];
+  artists: Artist[];
   album: { name: string; url: string; image: string | null };
 }
 
@@ -60,15 +66,16 @@ function httpsImage(value: unknown): string | null {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Raw = any;
 
-/** Maps a Spotify track object to the public shape; null for episodes, local files or missing links. */
+/** Maps a Spotify track object to the public shape; null for episodes, local files or missing track/album links. */
 export function mapTrack(item: Raw): Track | null {
   if (!item || item.type !== 'track' || typeof item.name !== 'string' || !item.name) return null;
   const url = spotifyLink(item.external_urls?.spotify);
   const albumUrl = spotifyLink(item.album?.external_urls?.spotify);
-  const artists = (Array.isArray(item.artists) ? item.artists : [])
-    .map((artist: Raw) => ({ name: typeof artist?.name === 'string' ? artist.name : '', url: spotifyLink(artist?.external_urls?.spotify) }))
-    .filter((artist: { name: string; url: string | null }): artist is { name: string; url: string } => Boolean(artist.name && artist.url));
-  if (!url || !albumUrl || artists.length === 0) return null;
+  if (!url || !albumUrl) return null;
+  // Every named artist is kept; one without an open.spotify.com link gets url null.
+  const artists: Artist[] = (Array.isArray(item.artists) ? item.artists : [])
+    .filter((artist: Raw) => typeof artist?.name === 'string' && artist.name)
+    .map((artist: Raw) => ({ name: artist.name, url: spotifyLink(artist.external_urls?.spotify) }));
 
   // Smallest image that is still sharp at 2x the 52 px widget, otherwise the largest available.
   const images = (Array.isArray(item.album?.images) ? item.album.images : [])
