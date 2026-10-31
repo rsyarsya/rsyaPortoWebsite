@@ -24,6 +24,9 @@
   --color-disabled-fg:      var(--color-text-muted);
   --color-disabled-border:  var(--color-border);
 
+  /* Form validation errors (text and invalid field border): ≥4.5:1 on bg, surface and surface-hover. */
+  --color-error:            #9E4436;
+
   /* Primary button */
   --color-btn-primary-bg:       #292824;
   --color-btn-primary-fg:       #FAF9F6;
@@ -83,6 +86,7 @@
   --color-accent:           #A8BDA0;
   --color-accent-fg:        #242420;
   --color-focus:            #A8BDA0;
+  --color-error:            #E0A092;
 
   /* Primary button */
   --color-btn-primary-bg:       #F1EFE8;

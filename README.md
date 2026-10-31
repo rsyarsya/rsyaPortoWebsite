@@ -70,7 +70,7 @@ The homepage renders real contribution data from `src/data/github-contributions.
 
 ## Current boundaries
 
-- Guestbook follows the Rimzz layout with sign-in/anonymous choices and a message area. GitHub login and posting are disabled until the backend pass. Anonymous fields are a preview only: values are never submitted or persisted, and there are no fabricated entries.
+- Guestbook follows the Rimzz layout with sign-in/anonymous choices and a message area. GitHub login and posting are disabled until the backend pass. Anonymous fields are a preview only: values are never submitted or persisted, and there are no fabricated entries. The preview shows the planned validation: a malformed website or an emptied message gets an inline error when the field is left, the message shows how many characters are left, and one polite status region announces new errors and the last 100 characters. Escape or Back closes the form and returns focus to "Write anonymously". Without JavaScript the page shows only the disabled sign-in and "Signing opens soon."
 - Open source, Notes, and Off the clock are deferred and excluded from the homepage. Their components are retained for later.
 - The music widget is still a placeholder (no real listening data is connected). The résumé is the PDF supplied by the owner, pending a later update.
 - Favicon PNG/ICO sizes are derived from the owner's supplied portrait. GitHub/source/Credly links use the owner's supplied public URLs.

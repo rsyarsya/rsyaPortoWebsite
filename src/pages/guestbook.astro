@@ -13,49 +13,135 @@ import Icon from '../components/ui/Icon.astro';
       <section class="composer" aria-label="Sign the guestbook">
         <div class="composer-actions">
           <button type="button" class="sign-in" disabled aria-describedby="signing-status"><Icon name="github" />Sign in with GitHub</button>
-          <button type="button" class="anonymous" aria-expanded="false" aria-controls="anonymous-form"><Icon name="user" />Write anonymously</button>
+          <button type="button" class="anonymous requires-script" aria-expanded="false" aria-controls="anonymous-form"><Icon name="user" />Write anonymously</button>
         </div>
-        <p id="signing-status">Signing opens soon. You can preview the anonymous form below.</p>
+        <p id="signing-status">Signing opens soon.<span class="requires-script"> You can preview the anonymous form.</span></p>
         <div id="anonymous-form" hidden>
           <div class="preview-fields" role="group" aria-label="Anonymous guestbook form preview" aria-describedby="preview-status">
             <p id="preview-status">Form preview only. Nothing you type here is saved or sent.</p>
-            <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="off" spellcheck="false" placeholder="Your name" maxlength="80" /></div>
-            <div class="field"><label for="guest-site">Website <span>(optional)</span></label><input id="guest-site" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://your-website.com" maxlength="200" /></div>
-            <div class="field"><label for="guest-message">Message</label><textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000" data-lenis-prevent></textarea></div>
+            <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" type="text" autocomplete="name" spellcheck="false" placeholder="Your name" maxlength="80" /></div>
+            <div class="field">
+              <label for="guest-site">Website <span>(optional)</span></label>
+              <input id="guest-site" type="url" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://your-website.com" maxlength="200" aria-invalid="false" aria-describedby="guest-site-error" />
+              <p id="guest-site-error" class="field-error" hidden></p>
+            </div>
+            <div class="field">
+              <label for="guest-message">Message</label>
+              <textarea id="guest-message" rows="4" placeholder="Say hello…" maxlength="1000" aria-required="true" aria-invalid="false" aria-describedby="guest-message-error guest-message-count" data-lenis-prevent></textarea>
+              <div class="field-meta"><p id="guest-message-error" class="field-error" hidden></p><p id="guest-message-count" class="count">1,000 characters left</p></div>
+            </div>
             <div class="form-actions"><button type="button" class="sign-in" disabled aria-describedby="preview-status">Sign guestbook</button><button type="button" class="cancel">Back</button></div>
           </div>
         </div>
+        <!-- One polite announcer for validation messages; outside the hidden panel so it is in the accessibility tree from load. -->
+        <p id="form-announcer" class="visually-hidden" role="status"></p>
       </section>
       <section class="entries" aria-labelledby="entries-title">
         <div class="entries-heading"><h2 id="entries-title">Entries</h2><span>0 notes</span></div>
-        <div class="empty-entry"><div class="avatar" aria-hidden="true"><Icon name="guestbook" /></div><div><p>No notes yet.</p><p class="muted">This space will hold your messages once the guestbook opens.</p></div></div>
+        <div class="empty-entry"><div class="avatar" aria-hidden="true"><Icon name="guestbook" /></div><div><p>No notes yet.</p><p class="muted">Notes will appear here once signing opens.</p></div></div>
       </section>
     </main>
     <SiteFooter />
   </Container>
 </BaseLayout>
 <script>
+  // Preview only: no <form>, no requests, no storage. The checks show how the form will respond once signing opens.
   const toggle = document.querySelector<HTMLButtonElement>('.anonymous');
   const panel = document.querySelector<HTMLElement>('#anonymous-form');
   const actions = document.querySelector<HTMLElement>('.composer-actions');
   const cancel = document.querySelector<HTMLButtonElement>('.cancel');
   const status = document.querySelector<HTMLElement>('#signing-status');
-  toggle?.addEventListener('click', () => {
-    if (!panel || !actions) return;
-    panel.hidden = false;
-    actions.hidden = true;
-    if (status) status.hidden = true;
-    toggle.setAttribute('aria-expanded', 'true');
-    document.querySelector<HTMLInputElement>('#guest-name')?.focus();
-  });
-  cancel?.addEventListener('click', () => {
+  const site = document.querySelector<HTMLInputElement>('#guest-site');
+  const message = document.querySelector<HTMLTextAreaElement>('#guest-message');
+  const count = document.querySelector<HTMLElement>('#guest-message-count');
+  const announcer = document.querySelector<HTMLElement>('#form-announcer');
+  let announceTimer = 0;
+  let messageEdited = false;
+  let countLevel = 0;
+
+  function announce(text: string) {
+    if (!announcer) return;
+    clearTimeout(announceTimer);
+    announcer.textContent = '';
+    // The short gap makes a repeated message count as new; clearing later leaves no stale text for browse mode.
+    announceTimer = window.setTimeout(() => {
+      announcer.textContent = text;
+      announceTimer = window.setTimeout(() => { announcer.textContent = ''; }, 7000);
+    }, 100);
+  }
+  /** Shows or clears a field's error; returns true when the visible message changed. */
+  function setError(field: HTMLInputElement | HTMLTextAreaElement, text: string) {
+    const error = document.getElementById(`${field.id}-error`);
+    if (!error || error.textContent === text) return false;
+    error.textContent = text;
+    error.hidden = !text;
+    field.setAttribute('aria-invalid', String(Boolean(text)));
+    return true;
+  }
+  function siteError(value: string) {
+    const text = value.trim();
+    if (!text) return '';
+    try {
+      // A bare domain is fine; https:// is assumed for the check only.
+      const url = new URL(text.includes('://') ? text : `https://${text}`);
+      if (['http:', 'https:'].includes(url.protocol) && /^[^.]+(\.[^.]+)+$/.test(url.hostname) && !url.username && !url.password && !/\s/.test(text)) return '';
+    } catch { /* Not a URL. */ }
+    return 'Enter a web address, like example.com.';
+  }
+  function messageError(value: string) {
+    return value.trim() ? '' : 'Enter a message.';
+  }
+  function validate(field: HTMLInputElement | HTMLTextAreaElement, check: (value: string) => string) {
+    // Leaving the form (Back, Escape) blurs the field after the panel is hidden: no error then.
+    if (panel?.hidden) return;
+    const text = check(field.value);
+    if (setError(field, text) && text) announce(text);
+  }
+  function updateCount(speak = true) {
+    if (!message || !count || message.maxLength < 0) return;
+    const left = Math.max(0, message.maxLength - message.value.length);
+    const text = left === 0 ? 'No characters left' : `${left.toLocaleString('en-US')} ${left === 1 ? 'character' : 'characters'} left`;
+    count.textContent = text;
+    // Announce at two thresholds only (100 left, none left), not on every keystroke.
+    const level = left === 0 ? 2 : left <= 100 ? 1 : 0;
+    if (speak && level > countLevel) announce(text);
+    countLevel = level;
+  }
+  function setOpen(open: boolean) {
     if (!panel || !actions || !toggle) return;
-    panel.hidden = true;
-    actions.hidden = false;
-    if (status) status.hidden = false;
-    toggle.setAttribute('aria-expanded', 'false');
+    panel.hidden = !open;
+    actions.hidden = open;
+    if (status) status.hidden = open;
+    toggle.setAttribute('aria-expanded', String(open));
+    if (open) {
+      // On back/forward the browser restores typed text after this script runs, without an input event.
+      updateCount(false);
+      document.querySelector<HTMLInputElement>('#guest-name')?.focus();
+      return;
+    }
+    clearTimeout(announceTimer);
+    if (announcer) announcer.textContent = '';
     toggle.focus();
+  }
+
+  toggle?.addEventListener('click', () => setOpen(true));
+  cancel?.addEventListener('click', () => setOpen(false));
+  // Escape leaves the form like Back, except while an input method is composing text.
+  panel?.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !event.isComposing) setOpen(false);
   });
+  // Errors appear when a field is left and clear as soon as the value is fixed.
+  site?.addEventListener('blur', () => validate(site, siteError));
+  site?.addEventListener('input', () => {
+    if (site.getAttribute('aria-invalid') === 'true') setError(site, siteError(site.value));
+  });
+  message?.addEventListener('input', () => {
+    messageEdited = true;
+    updateCount();
+    if (message.getAttribute('aria-invalid') === 'true') setError(message, messageError(message.value));
+  });
+  // Tabbing through an untouched message is not an error; clearing a typed one is.
+  message?.addEventListener('blur', () => { if (messageEdited) validate(message, messageError); });
 </script>
 <style>
   .guestbook-page { padding-bottom: var(--section-gap); }
@@ -79,6 +165,14 @@ import Icon from '../components/ui/Icon.astro';
   textarea { resize: vertical; }
   /* Lenis skips this field (data-lenis-prevent) and lenis.css contains its overscroll; let the wheel continue to the page when it is empty or at its end. */
   #guest-message { overscroll-behavior: auto; }
+  /* Validation: the error text under the field carries the meaning; the border color only repeats it. */
+  input[aria-invalid='true'], textarea[aria-invalid='true'] { border-color: var(--color-error); }
+  .field-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+  .field-error { font-size: 14px; color: var(--color-error); }
+  .count { margin-left: auto; font-size: 13px; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* Without scripts the preview cannot open, so its button and sentence are not offered. */
+  @media (scripting: none) { .requires-script { display: none; } }
   .entries { margin-top: 40px; }
   .entries-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 12px; color: var(--color-muted); }
   .entries-heading h2 { font: 400 15px/1.5 var(--font-sans); letter-spacing: 0; }
