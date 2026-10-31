@@ -6,6 +6,7 @@ import '@fontsource/source-sans-3/latin-600.css';
 import '../styles/global.css';
 import ScrollEdges from '../components/layout/ScrollEdges.astro';
 import AsciiBackground from '../components/layout/AsciiBackground.astro';
+import CommandPalette from '../components/ui/CommandPalette.astro';
 import preferencesInit from '../scripts/preferences-init.js?raw';
 import { profile } from '../data/profile';
 // Margin-only ASCII water background. Set to false to ship without it (no markup, no script).
@@ -38,6 +39,7 @@ const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Infor
     <slot />
     {ASCII_BACKGROUND_ENABLED && <AsciiBackground />}
     <ScrollEdges />
+    <CommandPalette />
     <script>
       import '../scripts/smooth-scroll';
     </script>

@@ -1,23 +1,13 @@
+import { setLayout, setMotion, setTheme, syncPreferenceControls } from './preferences';
+
 const root = document.documentElement;
 const header = document.querySelector<HTMLElement>('.site-header');
 const settings = document.querySelector<HTMLElement>('#display-settings');
 const settingsButton = document.querySelector<HTMLButtonElement>('.settings-toggle');
 const themeButton = document.querySelector<HTMLButtonElement>('.theme-toggle');
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let lastY = Math.max(0, scrollY);
 let frame = 0;
 
-function save(key: string, value: string) {
-  try { localStorage.setItem(`rsya:${key}`, value); } catch { /* Storage is optional. */ }
-}
-// The label names the action, so the button carries no aria-pressed (a toggle's label must not change with its state).
-function syncThemeButton() {
-  const dark = root.dataset.theme === 'dark';
-  themeButton?.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`);
-}
-function applyMotion() {
-  root.dataset.motion = root.dataset.motionSetting === 'off' || (root.dataset.motionSetting !== 'on' && reducedMotion.matches) ? 'reduce' : 'full';
-}
 function reveal() {
   if (header) header.dataset.state = scrollY <= 0 ? 'top' : 'pill';
 }
@@ -44,23 +34,14 @@ header?.addEventListener('focusout', event => {
   requestAnimationFrame(() => { if (!header.contains(document.activeElement)) closeSettings(); });
 });
 header?.addEventListener('focusin', reveal);
-themeButton?.addEventListener('click', () => {
-  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-  save('theme', root.dataset.theme);
-  syncThemeButton();
-});
+themeButton?.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
 for (const input of document.querySelectorAll<HTMLInputElement>('#display-settings input')) {
-  input.checked = input.value === (input.name === 'motion' ? root.dataset.motionSetting : root.dataset.layout);
   input.addEventListener('change', () => {
-    if (input.name === 'motion') {
-      root.dataset.motionSetting = input.value;
-      applyMotion();
-    } else root.dataset.layout = input.value;
-    save(input.name, input.value);
+    if (input.name === 'motion') setMotion(input.value as Parameters<typeof setMotion>[0]);
+    else setLayout(input.value as Parameters<typeof setLayout>[0]);
   });
 }
-reducedMotion.addEventListener('change', applyMotion);
-syncThemeButton();
+syncPreferenceControls();
 function update() {
   frame = 0;
   const max = Math.max(0, root.scrollHeight - innerHeight);
