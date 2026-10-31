@@ -10,9 +10,9 @@ let frame = 0;
 function save(key: string, value: string) {
   try { localStorage.setItem(`rsya:${key}`, value); } catch { /* Storage is optional. */ }
 }
+// The label names the action, so the button carries no aria-pressed (a toggle's label must not change with its state).
 function syncThemeButton() {
   const dark = root.dataset.theme === 'dark';
-  themeButton?.setAttribute('aria-pressed', String(dark));
   themeButton?.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`);
 }
 function applyMotion() {

@@ -80,8 +80,9 @@ function resolveHash(hash: string, immediate = false): void {
     pendingHash = null;
   });
 
-  // CSS scroll-margin-top is the single offset source; offset 0 lets CSS own
-  // the gap under the fixed navbar.
+  // CSS is the single offset source: Lenis subtracts the target's
+  // scroll-margin-top and the root scroll-padding-top (global.css), like native
+  // fragment scrolling, so offset 0 lets CSS own the gap under the fixed navbar.
   lenis?.scrollTo(target, { offset: 0, immediate });
   moveFocus(target);
 }

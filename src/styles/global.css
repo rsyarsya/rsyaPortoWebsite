@@ -15,7 +15,10 @@ a { color: inherit; text-underline-offset: 4px; }
 :where(a[href], button, input, textarea, select, summary, [tabindex='0']):focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 :where(a[href], summary, [tabindex='0']):where(:focus-visible) { border-radius: 4px; }
 ul { margin: 0; padding: 0; list-style: none; }
-section, #main { scroll-margin-top: 104px; }
+/* Keep scroll targets clear of the fixed chrome. scroll-padding reserves the navbar pill (16 + 56px, plus 16px) and the 64px edge blur
+   for anchors, Lenis scrollTo, keyboard focus and Page Up/Down; scroll-margin adds the gap above a section. Anchors land 104px from the top. */
+html { scroll-padding: 88px 0 64px; }
+section, #main { scroll-margin-top: 16px; }
 .section-stack { display: grid; gap: var(--section-gap); padding-bottom: var(--section-gap); }
 .muted { color: var(--color-muted); }
 .metadata { color: var(--color-muted); font-size: 14px; }
@@ -41,7 +44,9 @@ section, #main { scroll-margin-top: 104px; }
   .row-heading, .placeholder-row { flex-direction: column; gap: 2px; }
   .section-stack { padding-top: 48px; }
   body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
-  section, #main { scroll-margin-top: 24px; }
+  /* Mobile: anchors land 24px from the top; the bottom dock (12 + 56px, plus 12px) stays clear of focused elements. */
+  html { scroll-padding: 24px 0 calc(80px + env(safe-area-inset-bottom)); }
+  section, #main { scroll-margin-top: 0; }
 }
 @media (min-width: 768px) {
   h1 { font-size: 44px; }
