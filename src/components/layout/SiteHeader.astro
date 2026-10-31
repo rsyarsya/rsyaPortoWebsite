@@ -14,7 +14,7 @@ const links = [
 <header class="site-header" data-state="top">
   <nav aria-label="Main navigation">
     <div class="destinations">
-      {links.map(link => <a href={link.href} aria-label={link.label} title={link.label} aria-current={(isHome && link.label === 'Home') || (!isHome && link.label === 'Guestbook') ? 'page' : undefined}><Icon name={link.icon} /><span>{link.label}</span></a>)}
+      {links.map(link => <a href={link.href} aria-label={link.label} title={link.label} aria-current={(isHome && link.label === 'Home') || (Astro.url.pathname.startsWith('/guestbook') && link.label === 'Guestbook') ? 'page' : undefined}><Icon name={link.icon} /><span>{link.label}</span></a>)}
     </div>
     <div class="utilities"><NavPreferences /></div>
   </nav>
@@ -54,5 +54,6 @@ const links = [
     .utilities { margin-left: 4px; padding-left: 4px; }
     a { padding: 6px; }
   }
+  @media (max-width: 400px) { nav { padding-inline: 4px; } }
   :global(html[data-motion='reduce']) header, :global(html[data-motion='reduce']) nav { transition: none; }
 </style>
