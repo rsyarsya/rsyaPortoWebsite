@@ -102,7 +102,7 @@ const commands: Command[] = [
       markCurrent();
       filter();
       dialog.showModal();
-      lockScroll();
+      if (!locked) lockScroll();
       locked = true;
       input.focus();
     }
@@ -116,7 +116,7 @@ const commands: Command[] = [
       if (restoreFocus) returnTo?.focus({ preventScroll: true });
       returnTo = null;
     }
-    dialog.addEventListener('close', () => close());
+    dialog.addEventListener('close', () => { if (!dialog.open) close(); });
 
     function followLink(href: string, target?: string) {
       const link = document.createElement('a');

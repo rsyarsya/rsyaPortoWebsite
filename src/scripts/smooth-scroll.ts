@@ -147,6 +147,8 @@ function init(): void {
       // own media-query check would only override an explicit On.
       respectReducedMotion: false,
     });
+    // Eligibility can change while a modal is open (for example on resize).
+    if (lockCount > 0) lenis.stop();
     rafId = requestAnimationFrame(raf);
     document.addEventListener('click', onAnchorClick);
     addEventListener('hashchange', onHashChange);
