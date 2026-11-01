@@ -5,7 +5,7 @@ import { profile } from '../../data/profile';
 // Commands are plain data: a link (href/target), the contact dialog, or a preference value.
 const isHome = Astro.url.pathname === '/';
 const section = (id: string) => (isHome ? `#${id}` : `/#${id}`);
-interface Command { label: string; hint: string; keywords: string; href?: string; target?: string; action?: 'contact'; pref?: 'theme' | 'motion'; value?: string; }
+interface Command { label: string; hint: string; keywords: string; href?: string; target?: string; action?: 'contact'; pref?: 'theme' | 'motion' | 'language'; value?: string; }
 const commands: Command[] = [
   { label: 'Go to Home', hint: 'Section', keywords: 'intro top start hero', href: section('intro') },
   { label: 'Go to Work', hint: 'Section', keywords: 'projects selected portfolio', href: section('projects') },
@@ -20,6 +20,8 @@ const commands: Command[] = [
   { label: 'Animation: System', hint: 'Animation', keywords: 'motion reduced default', pref: 'motion', value: 'system' },
   { label: 'Animation: On', hint: 'Animation', keywords: 'motion enable', pref: 'motion', value: 'on' },
   { label: 'Animation: Off', hint: 'Animation', keywords: 'motion disable reduce', pref: 'motion', value: 'off' },
+  { label: 'Language: English', hint: 'Language', keywords: 'bahasa translate english', pref: 'language', value: 'en' },
+  { label: 'Language: Indonesia', hint: 'Language', keywords: 'bahasa terjemahan indonesia', pref: 'language', value: 'id' },
 ];
 ---
 <dialog id="command-palette" class="palette" aria-label="Command palette">
@@ -41,7 +43,7 @@ const commands: Command[] = [
 </dialog>
 <script>
   import { lockScroll, unlockScroll } from '../../scripts/smooth-scroll';
-  import { setMotion, setTheme } from '../../scripts/preferences';
+  import { setLanguage, setMotion, setTheme } from '../../scripts/preferences';
 
   const dialog = document.querySelector<HTMLDialogElement>('#command-palette');
   if (dialog && typeof dialog.showModal === 'function') setup(dialog);
@@ -72,7 +74,8 @@ const commands: Command[] = [
     function filter() {
       const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
       visible = options.filter(option => {
-        const match = terms.every(term => option.dataset.keywords!.includes(term));
+        const keywords = `${option.dataset.keywords} ${option.querySelector('.label')?.textContent}`.toLowerCase();
+        const match = terms.every(term => keywords.includes(term));
         option.hidden = !match;
         return match;
       });
@@ -86,7 +89,7 @@ const commands: Command[] = [
     function markCurrent() {
       for (const option of options) {
         const { pref, value, hint } = option.dataset;
-        const current = (pref === 'theme' && root.dataset.theme === value) || (pref === 'motion' && root.dataset.motionSetting === value);
+        const current = (pref === 'theme' && root.dataset.theme === value) || (pref === 'motion' && root.dataset.motionSetting === value) || (pref === 'language' && root.dataset.language === value);
         option.querySelector('.hint')!.textContent = current ? 'Current' : hint!;
       }
     }
@@ -146,6 +149,7 @@ const commands: Command[] = [
       if (pref) {
         close();
         if (pref === 'theme') setTheme(value as 'light' | 'dark');
+        else if (pref === 'language') setLanguage(value as 'en' | 'id');
         else setMotion(value as 'system' | 'on' | 'off');
         return;
       }

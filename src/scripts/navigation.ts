@@ -1,4 +1,4 @@
-import { setLayout, setMotion, setTheme, syncPreferenceControls } from './preferences';
+import { setLanguage, setLayout, setMotion, setTheme, syncPreferenceControls } from './preferences';
 
 const root = document.documentElement;
 const header = document.querySelector<HTMLElement>('.site-header');
@@ -37,7 +37,8 @@ header?.addEventListener('focusin', reveal);
 themeButton?.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
 for (const input of document.querySelectorAll<HTMLInputElement>('#display-settings input')) {
   input.addEventListener('change', () => {
-    if (input.name === 'motion') setMotion(input.value as Parameters<typeof setMotion>[0]);
+    if (input.name === 'language') setLanguage(input.value as 'en' | 'id');
+    else if (input.name === 'motion') setMotion(input.value as Parameters<typeof setMotion>[0]);
     else setLayout(input.value as Parameters<typeof setLayout>[0]);
   });
 }

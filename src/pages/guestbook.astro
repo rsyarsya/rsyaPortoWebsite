@@ -269,6 +269,8 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     const nameEl = item.querySelector<HTMLElement>('.entry-name')!;
     const href = entry.website ? normalizeWebsite(entry.website) : null;
     const label = entry.name?.trim() || 'Anonymous';
+    // Only the UI fallback is localized; visitor-provided names stay untouched.
+    if (!entry.name?.trim()) nameEl.setAttribute('data-site-copy', '');
     if (href) {
       const link = document.createElement('a');
       link.href = href;

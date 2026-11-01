@@ -8,11 +8,14 @@ import Icon from '../ui/Icon.astro';
   <div class="settings-wrap">
     <button type="button" class="settings-toggle icon-button" aria-label="Display settings" aria-expanded="false" aria-controls="display-settings" title="Display settings"><Icon name="settings" /></button>
     <div id="display-settings" class="settings-panel" hidden data-lenis-prevent>
+      <fieldset><legend>Language</legend>
+        {['English', 'Indonesia'].map((value, index) => <label><input type="radio" name="language" value={index === 0 ? 'en' : 'id'} checked={index === 0} /><Icon name="language" /><span translate="no" lang={index === 0 ? 'en' : 'id'}>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
+      </fieldset>
       <fieldset><legend>Animation</legend>
-        {['System', 'On', 'Off'].map(value => <label><input type="radio" name="motion" value={value.toLowerCase()} checked={value === 'System'} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
+        {(['System', 'On', 'Off'] as const).map((value, index) => <label><input type="radio" name="motion" value={value.toLowerCase()} checked={value === 'System'} /><Icon name={(['system', 'motion-on', 'motion-off'] as const)[index]} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
       </fieldset>
       <fieldset><legend>Layout</legend>
-        {['Default', 'Wide', 'Wider'].map(value => <label><input type="radio" name="layout" value={value.toLowerCase()} checked={value === 'Default'} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
+        {['Default', 'Wide', 'Wider'].map((value, index) => <label><input type="radio" name="layout" value={value.toLowerCase()} checked={value === 'Default'} /><Icon name={(['layout-default', 'layout-wide', 'layout-wider'] as const)[index]} /><span>{value}</span><span class="check" aria-hidden="true">✓</span></label>)}
       </fieldset>
     </div>
   </div>
@@ -25,15 +28,19 @@ import Icon from '../ui/Icon.astro';
   label:has(input:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
   input:focus-visible { outline: none; }
   .settings-wrap { position: relative; }
-  .settings-panel { position: absolute; right: 0; top: calc(100% + 12px); width: 192px; padding: 6px 0; border: 1px solid var(--color-nav-border); border-radius: 18px; background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-panel); max-height: calc(100dvh - 100px); overflow-y: auto; }
+  .settings-panel { position: absolute; right: 0; top: calc(100% + 12px); width: 216px; padding: 6px 0; border: 1px solid var(--color-nav-border); border-radius: 14px; background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-panel); max-height: calc(100dvh - 100px); overflow-y: auto; }
   [hidden] { display: none !important; }
   fieldset { border: 0; margin: 0; padding: 8px; min-width: 0; }
   fieldset + fieldset { border-top: 1px solid var(--color-border); }
   legend { padding: 6px 8px 0; font-size: 13px; font-weight: 600; color: var(--color-muted); }
-  label { position: relative; display: flex; align-items: center; min-height: 40px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+  label { position: relative; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 16px; }
   label:hover { background: var(--color-surface-hover); }
-  input { appearance: none; width: 16px; height: 16px; border: 1px solid var(--color-border-interactive); border-radius: 50%; margin: 0 10px 0 0; }
-  input:checked { border: 5px solid var(--color-accent); }
+  /* Native radio covers the whole row. Text/icon clicks hit the same focusable
+     control, avoiding focus departure before the label's default activation. */
+  input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  label > span, label > :global(svg) { pointer-events: none; }
+  label > :global(svg) { flex: none; width: 18px; height: 18px; color: var(--color-muted); }
+  label:has(input:checked) { color: var(--color-text); }
   .check { visibility: hidden; margin-left: auto; }
   input:checked ~ .check { visibility: visible; }
   @media (max-width: 767px) { .settings-panel { top: auto; bottom: calc(100% + 14px); } }

@@ -1,5 +1,6 @@
 // Single preferences path for the settings menu and the command palette.
 // Writes html data attributes + rsya:* storage, then syncs the menu radios and theme button.
+import { applyLanguage } from './language';
 const root = document.documentElement;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -13,7 +14,7 @@ export function syncPreferenceControls() {
   // The label names the action, so the button carries no aria-pressed (a toggle's label must not change with its state).
   document.querySelector('.theme-toggle')?.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`);
   for (const input of document.querySelectorAll<HTMLInputElement>('#display-settings input')) {
-    input.checked = input.value === (input.name === 'motion' ? root.dataset.motionSetting : root.dataset.layout);
+    input.checked = input.value === (input.name === 'language' ? root.dataset.language : input.name === 'motion' ? root.dataset.motionSetting : root.dataset.layout);
   }
 }
 
@@ -38,6 +39,13 @@ export function setLayout(value: 'default' | 'wide' | 'wider') {
   root.dataset.layout = value;
   save('layout', value);
   syncPreferenceControls();
+}
+
+export function setLanguage(value: 'en' | 'id') {
+  root.dataset.language = value;
+  save('language', value);
+  syncPreferenceControls();
+  applyLanguage();
 }
 
 reducedMotion.addEventListener('change', applyMotion);
