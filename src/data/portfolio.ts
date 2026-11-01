@@ -1,7 +1,21 @@
 // Concise homepage content from the supplied CV and current user instructions.
 // Destinations and case studies can be added when real project evidence is available.
-export const projects = [
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  role: string;
+  context: string;
+  technologies: readonly string[];
+  problem?: string;
+  contribution?: string;
+  outcome?: string;
+  media?: { src: string; alt: string; preview?: boolean };
+  links?: { label: string; href: string }[];
+}
+export const projects: readonly Project[] = [
   {
+    id: 'hydroconnect',
     name: 'HydroConnect',
     description: 'Solar-powered clean water infrastructure with IoT water-quality monitoring in Dusun Pengos, Gunungkidul. I led power-generation deployment and oversaw instrumentation.',
     role: 'Vice Project Director',
@@ -9,6 +23,7 @@ export const projects = [
     technologies: ['IoT', 'Instrumentation', 'Solar power'],
   },
   {
+    id: 'ostosense',
     name: 'OSTOSENSE',
     description: 'A medical wearable project for ostomy leakage-risk monitoring. I developed the ESP32-S3 edge-inference pipeline and sensor feature extraction, integrated with a mobile application.',
     role: 'AI Engineer',
@@ -16,6 +31,7 @@ export const projects = [
     technologies: ['ESP32-S3', 'Machine learning', 'React Native'],
   },
   {
+    id: 'fish-schooling',
     name: 'Fish Schooling Simulation',
     description: 'An agent-based fish-schooling simulation under changing water currents, with adjustable parameters, real-time visualization, and group-coherence analysis.',
     role: 'Sole Developer',
@@ -23,6 +39,7 @@ export const projects = [
     technologies: ['Unity', 'C#', 'Agent-based modeling'],
   },
   {
+    id: 'aws-cloud',
     name: 'AWS Cloud Project',
     description: 'An academic cloud project built on Amazon Web Services.',
     role: 'Course project',

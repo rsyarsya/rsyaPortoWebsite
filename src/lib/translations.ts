@@ -1,6 +1,8 @@
 // Curated site copy. English is the source/default; personal names, technical
 // names, listening metadata and visitor-authored notes are never translated.
 const indonesia: Record<string, string> = {
+  'View project': 'Lihat proyek', 'Preview': 'Pratinjau', 'The problem': 'Masalah yang ditangani',
+  'My role': 'Peran saya', 'Technologies': 'Teknologi', 'Results': 'Hasil', 'Project links': 'Tautan proyek',
   "We couldn't confirm delivery. Your message is still here, so you can try again.": 'Pengiriman belum dapat dikonfirmasi. Pesanmu masih di sini dan bisa dicoba kembali.',
   'Your earlier attempt is still being processed. Wait a moment, then try again with the same message.': 'Percobaan sebelumnya masih diproses. Tunggu sebentar, lalu coba lagi dengan pesan yang sama.',
   'Music': 'Musik',
