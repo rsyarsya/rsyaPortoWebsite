@@ -45,6 +45,7 @@ import { profile } from '../../data/profile';
 </dialog>
 <script>
   import { lockScroll, unlockScroll } from '../../scripts/smooth-scroll';
+  import { requestJson } from '../../lib/request-json';
 
   type State = 'idle' | 'submitting' | 'success' | 'error';
   type FieldName = 'name' | 'email' | 'message';
@@ -70,6 +71,7 @@ import { profile } from '../../data/profile';
     let state: State = 'idle';
     let returnTo: HTMLElement | null = null;
     let locked = false;
+    let draft: { body: string; id: string } | null = null;
 
     // The state outlives the open dialog: closing never cancels a send or discards its result,
     // and open() shows whatever the current state is.
@@ -159,6 +161,7 @@ import { profile } from '../../data/profile';
     }
 
     newMessage.addEventListener('click', () => {
+      draft = null;
       setState('idle');
       clearStatus();
       fields.name.focus();
@@ -191,17 +194,26 @@ import { profile } from '../../data/profile';
 
       // Snapshot of the values at submit time; the fields stay read-only until the response arrives.
       const body = JSON.stringify({ name: fields.name.value, email: fields.email.value, message: fields.message.value, trap: trap.value });
+      if (draft?.body !== body) {
+        const bytes = crypto.getRandomValues(new Uint8Array(16));
+        bytes[6] = (bytes[6] & 15) | 64;
+        bytes[8] = (bytes[8] & 63) | 128;
+        const hex = [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('');
+        draft = { body, id: `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}` };
+      }
       setState('submitting');
       showStatus('info', 'Sending your message…');
       focusStatus(); // the disabled Send button would otherwise drop focus to the page
       let response: Response;
       let data: { ok?: boolean; code?: string; errors?: Partial<Record<FieldName, string>> } = {};
       try {
-        response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-        data = await response.json().catch(() => ({}));
+        const result = await requestJson('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': draft.id }, body }, 20_000);
+        response = result.response;
+        if (!result.data || typeof result.data !== 'object' || Array.isArray(result.data)) throw new Error('Invalid contact response');
+        data = result.data as typeof data;
       } catch {
         setState('error');
-        showStatus('error', "Couldn't reach the server. Check your connection and try again; your message is still here.", true);
+        showStatus('error', "We couldn't confirm delivery. Your message is still here, so you can try again.", true);
         focusStatus();
         return;
       }
@@ -231,6 +243,10 @@ import { profile } from '../../data/profile';
         showStatus('error', "Sending from this site isn't set up yet, so your message was not sent. It's still here.", true);
       } else if (data.code === 'rate_limited') {
         showStatus('error', 'Too many messages were sent from your connection. Try again in a few minutes.', true);
+      } else if (data.code === 'delivery_pending') {
+        showStatus('info', 'Your earlier attempt is still being processed. Wait a moment, then try again with the same message.');
+      } else if (data.code === 'delivery_unknown') {
+        showStatus('error', "We couldn't confirm delivery. Your message is still here, so you can try again.", true);
       } else {
         showStatus('error', "Your message couldn't be sent. It's still here, so you can try again.", true);
       }

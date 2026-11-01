@@ -1,6 +1,8 @@
 // Curated site copy. English is the source/default; personal names, technical
 // names, listening metadata and visitor-authored notes are never translated.
 const indonesia: Record<string, string> = {
+  "We couldn't confirm delivery. Your message is still here, so you can try again.": 'Pengiriman belum dapat dikonfirmasi. Pesanmu masih di sini dan bisa dicoba kembali.',
+  'Your earlier attempt is still being processed. Wait a moment, then try again with the same message.': 'Percobaan sebelumnya masih diproses. Tunggu sebentar, lalu coba lagi dengan pesan yang sama.',
   'Music': 'Musik',
   'Off the Clock': 'Di Luar Kesibukan', 'Go to Off the Clock': 'Ke Di Luar Kesibukan',
   'A few things that stay with me beyond the screen.': 'Hal-hal yang menemani keseharian saya di luar layar.',
