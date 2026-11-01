@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import './theme-transition.css';
 
 *, *::before, *::after { box-sizing: border-box; }
 html { background: var(--color-bg); scroll-behavior: auto; }

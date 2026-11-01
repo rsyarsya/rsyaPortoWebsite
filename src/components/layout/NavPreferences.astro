@@ -4,7 +4,7 @@ import Icon from '../ui/Icon.astro';
 <div class="preferences">
   <!-- Shown by CommandPalette.astro once its script runs; without JS there is no palette. -->
   <button type="button" class="palette-toggle icon-button" data-palette-open aria-label="Open command palette" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Command palette (Ctrl K)" hidden><Icon name="search" /></button>
-  <button type="button" class="theme-toggle icon-button" aria-label="Switch to dark theme" title="Toggle theme"><Icon name="theme" /></button>
+  <button type="button" class="theme-toggle icon-button" aria-label="Switch to dark theme" title="Toggle theme"><span class="theme-symbol theme-sun"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></svg></span><span class="theme-symbol theme-moon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z" /></svg></span></button>
   <div class="settings-wrap">
     <button type="button" class="settings-toggle icon-button" aria-label="Display settings" aria-expanded="false" aria-controls="display-settings" title="Display settings"><Icon name="settings" /></button>
     <div id="display-settings" class="settings-panel" hidden data-lenis-prevent>
@@ -24,6 +24,13 @@ import Icon from '../ui/Icon.astro';
   .preferences { display: flex; align-items: center; gap: 2px; }
   .icon-button { display: inline-flex; justify-content: center; align-items: center; width: 44px; height: 44px; background: transparent; border: 0; border-radius: 50%; color: inherit; cursor: pointer; }
   .icon-button:hover, .icon-button[aria-expanded='true'] { background: var(--color-surface); }
+  .theme-toggle { position: relative; color: var(--color-accent); }
+  .theme-symbol { position: absolute; inset: 12px; display: flex; pointer-events: none; }
+  .theme-sun { opacity: 1; transform: rotate(0); }
+  .theme-moon { opacity: 0; transform: rotate(-24deg); }
+  :global([data-theme='dark']) .theme-sun { opacity: 0; transform: rotate(24deg); }
+  :global([data-theme='dark']) .theme-moon { opacity: 1; transform: rotate(0); }
+  :global(:root[data-theme-changing][data-motion='full']) .theme-symbol { transition: opacity 200ms ease, transform 200ms ease; }
   /* The ring moves from the radio to its whole row. */
   label:has(input:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
   input:focus-visible { outline: none; }

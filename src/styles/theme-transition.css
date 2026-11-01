@@ -1,0 +1,29 @@
+/* Inherited colors blend at the root without overriding component motion.
+   Browsers without @property still switch themes normally. */
+@property --color-bg { syntax: "<color>"; inherits: true; initial-value: #FAF9F6; }
+@property --color-surface { syntax: "<color>"; inherits: true; initial-value: #F0EEE8; }
+@property --color-surface-hover { syntax: "<color>"; inherits: true; initial-value: #E8E6DE; }
+@property --color-text { syntax: "<color>"; inherits: true; initial-value: #292824; }
+@property --color-text-muted { syntax: "<color>"; inherits: true; initial-value: #69665F; }
+@property --color-border { syntax: "<color>"; inherits: true; initial-value: #DDDAD2; }
+@property --color-border-interactive { syntax: "<color>"; inherits: true; initial-value: #85827A; }
+@property --color-accent { syntax: "<color>"; inherits: true; initial-value: #456657; }
+@property --color-accent-fg { syntax: "<color>"; inherits: true; initial-value: #FAF9F6; }
+@property --color-focus { syntax: "<color>"; inherits: true; initial-value: #456657; }
+@property --color-error { syntax: "<color>"; inherits: true; initial-value: #9E4436; }
+@property --color-btn-primary-bg { syntax: "<color>"; inherits: true; initial-value: #292824; }
+@property --color-btn-primary-fg { syntax: "<color>"; inherits: true; initial-value: #FAF9F6; }
+@property --color-btn-primary-hover-bg { syntax: "<color>"; inherits: true; initial-value: #44433E; }
+@property --color-nav-bg { syntax: "<color>"; inherits: true; initial-value: rgba(250, 249, 246, 0.92); }
+@property --color-nav-border { syntax: "<color>"; inherits: true; initial-value: #DDDAD2; }
+@property --color-cal-0 { syntax: "<color>"; inherits: true; initial-value: #E8E6DE; }
+@property --color-cal-1 { syntax: "<color>"; inherits: true; initial-value: #B8CCBA; }
+@property --color-cal-2 { syntax: "<color>"; inherits: true; initial-value: #7EA88A; }
+@property --color-cal-3 { syntax: "<color>"; inherits: true; initial-value: #5A8068; }
+@property --color-cal-4 { syntax: "<color>"; inherits: true; initial-value: #456657; }
+
+:root[data-theme-changing][data-motion='full'] {
+  transition-property: --color-bg, --color-surface, --color-surface-hover, --color-text, --color-text-muted, --color-border, --color-border-interactive, --color-accent, --color-accent-fg, --color-focus, --color-error, --color-btn-primary-bg, --color-btn-primary-fg, --color-btn-primary-hover-bg, --color-nav-bg, --color-nav-border, --color-cal-0, --color-cal-1, --color-cal-2, --color-cal-3, --color-cal-4;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}

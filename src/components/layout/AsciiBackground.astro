@@ -11,6 +11,7 @@
   /* The script sets each strip's left/width; width 0 until then, so nothing shifts or shows early. */
   canvas { position: absolute; top: 0; display: block; width: 0; height: 100%; opacity: 0.62; filter: invert(1) grayscale(1) sepia(0.3); }
   :global([data-theme='dark']) canvas { filter: invert(0) grayscale(1) sepia(0.3); }
+  :global(:root[data-theme-changing][data-motion='full']) canvas { transition: filter 300ms ease; }
   canvas:first-child { mask-image: linear-gradient(to right, #000 65%, transparent); }
   canvas:last-child { mask-image: linear-gradient(to left, #000 65%, transparent); }
   :global(:root[data-motion='reduce']) .ascii-background { transition: none; }

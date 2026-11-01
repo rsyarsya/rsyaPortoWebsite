@@ -2,6 +2,11 @@
 // Writes html data attributes + rsya:* storage, then syncs the menu radios and theme button.
 import { applyLanguage } from './language';
 const root = document.documentElement;
+let themeTimer: ReturnType<typeof setTimeout> | undefined;
+function finishThemeChange() {
+  clearTimeout(themeTimer);
+  delete root.dataset.themeChanging;
+}
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function save(key: string, value: string) {
@@ -20,9 +25,19 @@ export function syncPreferenceControls() {
 
 export function applyMotion() {
   root.dataset.motion = root.dataset.motionSetting === 'off' || (root.dataset.motionSetting !== 'on' && reducedMotion.matches) ? 'reduce' : 'full';
+  if (root.dataset.motion === 'reduce') finishThemeChange();
 }
 
 export function setTheme(theme: 'light' | 'dark') {
+  if (root.dataset.theme !== theme && root.dataset.motion === 'full') {
+    clearTimeout(themeTimer);
+    root.dataset.themeChanging = '';
+    // Install transitions before changing their targets, including on the first click.
+    getComputedStyle(root).backgroundColor;
+    themeTimer = setTimeout(finishThemeChange, 350);
+  } else if (root.dataset.motion !== 'full') {
+    finishThemeChange();
+  }
   root.dataset.theme = theme;
   save('theme', theme);
   syncPreferenceControls();
