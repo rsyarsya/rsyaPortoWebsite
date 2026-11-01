@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createNowPlaying } from '../src/server/now-playing';
-import { createLastfm } from '../src/server/lastfm';
+import { createNowPlaying, mapTrack as mapSpotifyTrack } from '../src/server/now-playing';
+import { createLastfm, mapTrack as mapLastfmTrack } from '../src/server/lastfm';
 import { selectProvider } from '../src/server/now-playing-provider';
 
 const config = { clientId: 'cid', clientSecret: 'csecret', refreshToken: 'rtoken' };
@@ -75,6 +75,28 @@ describe('GET /api/now-playing', () => {
   it('returns status none when there is no listening history', async () => {
     const res = await createNowPlaying({ config, fetch: spotify({}) })();
     expect(await res.json()).toEqual({ status: 'none', source: 'spotify' });
+  });
+
+  it('keeps every named artist, with url null unless it is an open.spotify.com link', () => {
+    const artists = [
+      { name: 'No link' },
+      { name: 'Script', external_urls: { spotify: 'javascript:alert(1)' } },
+      { name: 'Elsewhere', external_urls: { spotify: 'https://evil.example/artist/a1' } },
+      { name: '', external_urls: { spotify: 'https://open.spotify.com/artist/nameless' } },
+      { name: 'Linked', external_urls: { spotify: 'https://open.spotify.com/artist/a2' } },
+    ];
+    expect(mapSpotifyTrack({ ...track(), artists })?.artists).toEqual([
+      { name: 'No link', url: null },
+      { name: 'Script', url: null },
+      { name: 'Elsewhere', url: null },
+      { name: 'Linked', url: 'https://open.spotify.com/artist/a2' },
+    ]);
+  });
+
+  it('keeps a track without artist metadata, but still requires its own track and album links', () => {
+    expect(mapSpotifyTrack({ ...track(), artists: undefined })?.artists).toEqual([]);
+    expect(mapSpotifyTrack({ ...track(), artists: undefined, external_urls: {} })).toBeNull();
+    expect(mapSpotifyTrack({ ...track(), album: { ...track().album, external_urls: { spotify: 'https://evil.example/album' } } })).toBeNull();
   });
 
   it('caches the access token until expiry and the response for 30 s', async () => {
@@ -196,6 +218,33 @@ describe('Last.fm now-playing adapter', () => {
     const body = await (await createLastfm({ config: lastfmConfig, fetch })()).json();
     expect(body.status).toBe('playing');
     expect(body.track.name).toBe('Song');
+  });
+
+  it('keeps the artist name with url null when its link is missing or unsafe, and still reports the track', async () => {
+    for (const artist of [
+      { name: 'Artist' },
+      { name: 'Artist', url: '' },
+      { name: 'Artist', url: 'javascript:alert(1)' },
+      { name: 'Artist', url: 'http://www.last.fm/music/Artist' },
+      { name: 'Artist', url: 'https://evil.example/music/Artist' },
+      { '#text': 'Artist' }, // non-extended form: a name only
+    ]) {
+      const fetch = lastfm({ recenttracks: { track: [{ ...lfmTrack({ artist }), '@attr': { nowplaying: 'true' } }] } });
+      const body = await (await createLastfm({ config: lastfmConfig, fetch })()).json();
+      expect(body.status).toBe('playing');
+      expect(body.track.url).toBe('https://www.last.fm/music/Artist/_/Song');
+      expect(body.track.artists).toEqual([{ name: 'Artist', url: null }]);
+    }
+  });
+
+  it('maps a track without artist metadata to an empty artist list and invents no album link', () => {
+    expect(mapLastfmTrack(lfmTrack({ artist: undefined }))).toEqual({
+      name: 'Song',
+      url: 'https://www.last.fm/music/Artist/_/Song',
+      artists: [],
+      album: { name: 'Album', url: 'https://www.last.fm/music/Artist/_/Song', image: 'https://lastfm.freetls.fastly.net/i/u/300x300/xl.jpg' },
+    });
+    expect(mapLastfmTrack(lfmTrack({ url: 'https://evil.example/music/Artist/_/Song' }))).toBeNull();
   });
 
   it('treats the default placeholder image as no image', async () => {

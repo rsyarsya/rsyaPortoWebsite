@@ -73,12 +73,13 @@ export function mapTrack(item: Raw): Track | null {
   if (!name || !url) return null;
 
   // extended=1 gives an artist object with name + url; otherwise a `#text` string.
+  // The name is kept even without a usable www.last.fm link (url null).
   const artistName = str(item?.artist?.name) || str(item?.artist?.['#text']);
-  const artistUrl = lastfmLink(item?.artist?.url);
-  const artists = artistName && artistUrl ? [{ name: artistName, url: artistUrl }] : [];
+  const artists = artistName ? [{ name: artistName, url: lastfmLink(item?.artist?.url) }] : [];
 
+  // Album pages live under the artist, so without an artist name the album links to the track page.
   const albumName = str(item?.album?.['#text']);
-  const albumUrl = albumName
+  const albumUrl = albumName && artistName
     ? lastfmLink(`https://www.last.fm/music/${encodeURIComponent(artistName)}/${encodeURIComponent(albumName)}`) ?? url
     : url;
 
