@@ -1,8 +1,10 @@
 import { demoCollection } from './off-the-clock-demo';
+import type { ImageMetadata } from 'astro';
 /** Personal collections. Keep titles and personal notes exactly as supplied. */
 export interface GalleryPhoto {
   id: string;
   src: string;
+  image?: ImageMetadata;
   alt: string;
   caption: string;
   location?: string;
@@ -17,6 +19,7 @@ export interface Game {
   id: string;
   title: string;
   cover: string;
+  image?: ImageMetadata;
   status: 'playing' | 'played';
   /** 1–9 determines placement in “9 games that made me”. */
   formativeRank?: number;
@@ -28,6 +31,7 @@ export interface Book {
   title: string;
   author: string;
   cover: string;
+  image?: ImageMetadata;
   status: 'reading' | 'read' | 'want-to-read';
   note?: string;
   featured?: boolean;
@@ -37,6 +41,7 @@ export interface VisitedPlace {
   name: string;
   location: string;
   photo: string;
+  image?: ImageMetadata;
   alt: string;
   date: string;
   note: string;

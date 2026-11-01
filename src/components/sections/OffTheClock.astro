@@ -1,6 +1,7 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
 import Icon from '../ui/Icon.astro';
+import CollectionImage from '../ui/CollectionImage.astro';
 import { offTheClock as collection } from '../../data/off-the-clock';
 const { photos, games, books, lastVisited, demo } = collection;
 const formative = games.filter(game => game.formativeRank).sort((a, b) => a.formativeRank! - b.formativeRank!).slice(0, 9);
@@ -8,6 +9,11 @@ const playing = games.filter(game => game.status === 'playing');
 const reading = books.filter(book => book.status === 'reading');
 const shelf = [...reading, ...books.filter(book => book.status !== 'reading' && book.featured)].slice(0, 6);
 const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Reading', read: 'Read', 'want-to-read': 'Want to read' };
+// Cover crops can need more source pixels than their narrow CSS width suggests.
+// Account for the photo's height as well, especially the tall forest tile.
+const photoSizes = (index: number, aspect: number) => index === 0
+  ? '(max-width: 767px) calc(100vw - 64px), 620px'
+  : `(max-width: 767px) max(calc((100vw - 50px) / 2), ${Math.ceil([0, 230, 80, 124, 100, 116][index] * aspect)}px), ${[620, 480, 240, 360, 360, 440][index]}px`;
 ---
 <section id="off-the-clock" aria-labelledby="off-the-clock-title">
   <SectionHeading id="off-the-clock-title" title="Off the Clock" />
@@ -18,7 +24,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
     <div class="subheading"><h3 id="gallery-title">Gallery</h3><span class="muted">Little moments, kept.</span></div>
     {photos.length ? <div class="photo-composition">
       {photos.slice(0, 6).map((photo, index) => <a href={photo.src} class={`photo photo-${index + 1}`} data-photo-index={index} style={`--photo-position:${photo.position || 'center'}`} aria-haspopup="dialog">
-        <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+        <CollectionImage src={photo.src} image={photo.image} alt={photo.alt} width={photo.width} height={photo.height} widths={[240, 480, 800, 1200]} sizes={photoSizes(index, photo.width / photo.height)} />
         <span class="photo-caption" translate="no">{photo.caption}</span>
       </a>)}
     </div> : <p class="empty-copy">A few moments will find their way here soon.</p>}
@@ -30,7 +36,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
       <div class="subheading"><h3 id="games-title">Games</h3><span class="muted">Play, pause, repeat.</span></div>
       <p class="collection-intro">9 games that made me</p>
       <div class="game-grid">
-        {formative.map(game => <button class="cover-button" data-entry={`game-${game.id}`} aria-haspopup="dialog" aria-label={game.title} translate="no"><img src={game.cover} alt={game.title} width="600" height="900" loading="lazy" decoding="async" /></button>)}
+        {formative.map(game => <button class="cover-button" data-entry={`game-${game.id}`} aria-haspopup="dialog" aria-label={game.title} translate="no"><CollectionImage src={game.cover} image={game.image} alt={game.title} width={600} height={900} /></button>)}
       </div>
       {!formative.length && <p class="empty-copy">Favorite games will appear here soon.</p>}
       <div class="current"><span class="current-label">Currently playing</span><p translate="no">{playing.length ? playing.map(game => game.title).join(' / ') : '—'}</p></div>
@@ -40,7 +46,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
       <div class="subheading"><h3 id="books-title">Books</h3><span class="muted">One more chapter.</span></div>
       <p class="collection-intro">On my bookshelf</p>
       <div class="book-grid">
-        {shelf.map(book => <button class="cover-button book-cover" data-entry={`book-${book.id}`} aria-haspopup="dialog" aria-label={book.title} translate="no"><img src={book.cover} alt={book.title} width="400" height="600" loading="lazy" decoding="async" /></button>)}
+        {shelf.map(book => <button class="cover-button book-cover" data-entry={`book-${book.id}`} aria-haspopup="dialog" aria-label={book.title} translate="no"><CollectionImage src={book.cover} image={book.image} alt={book.title} width={400} height={600} /></button>)}
       </div>
       {!shelf.length && <p class="empty-copy">The bookshelf is waiting for its first titles.</p>}
       <div class="current"><span class="current-label">Currently reading</span><p translate="no">{reading.length ? reading.map(book => book.title).join(' / ') : '—'}</p></div>
@@ -51,7 +57,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   <div class="last-visited" aria-labelledby="visited-title">
     <h3 id="visited-title">Last visited</h3>
     {lastVisited ? <figure class="postcard">
-      <img src={lastVisited.photo} alt={lastVisited.alt} width="600" height="400" loading="lazy" decoding="async" />
+      <CollectionImage src={lastVisited.photo} image={lastVisited.image} alt={lastVisited.alt} width={600} height={400} widths={[160, 320, 480]} sizes="auto, 160px" />
       <figcaption><span class="postcard-location" translate="no">{lastVisited.location}{lastVisited.date && <> · {lastVisited.date}</>}</span><h4 translate="no">{lastVisited.name}</h4><p translate={demo ? undefined : 'no'}>{lastVisited.note}</p></figcaption>
     </figure> : <p class="empty-copy">A postcard from the next adventure, soon.</p>}
   </div>
@@ -69,11 +75,11 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
       {(kind === 'games' ? [['all', 'All'], ['formative', 'The formative nine'], ['playing', 'Currently playing'], ['played', 'Played']] : [['all', 'All'], ['reading', 'Reading'], ['read', 'Read'], ['want-to-read', 'Want to read']]).map(([value, label]) => <button data-collection-filter={value} aria-pressed={value === 'all' ? 'true' : 'false'}>{label}</button>)}
     </div>
     <div class="library-grid">
-      {(kind === 'games' ? games : books).map(item => <button class="library-item" data-entry={`${kind === 'games' ? 'game' : 'book'}-${item.id}`} data-status={item.status} data-formative={'formativeRank' in item && !!item.formativeRank ? 'true' : 'false'}><img src={item.cover} alt="" width="400" height="600" loading="lazy" decoding="async" /><strong translate="no">{item.title}</strong>{'author' in item && <span translate="no">{item.author}</span>}<span class="item-status">{statuses[item.status]}</span></button>)}
+      {(kind === 'games' ? games : books).map(item => <button class="library-item" data-entry={`${kind === 'games' ? 'game' : 'book'}-${item.id}`} data-status={item.status} data-formative={'formativeRank' in item && !!item.formativeRank ? 'true' : 'false'}><CollectionImage src={item.cover} image={item.image} alt="" width={400} height={600} /><strong translate="no">{item.title}</strong>{'author' in item && <span translate="no">{item.author}</span>}<span class="item-status">{statuses[item.status]}</span></button>)}
     </div>
     <p class="filter-empty" hidden>No entries in this collection yet.</p>
   </template>)}
-  {[...games.map(game => ({...game, key: `game-${game.id}`})), ...books.map(book => ({...book, key: `book-${book.id}`}))].map(item => <template id={`off-entry-${item.key}`}><div class="entry-detail"><img src={item.cover} alt="" width="400" height="600" /><div><p class="item-status">{statuses[item.status]}</p><h3 translate="no">{item.title}</h3>{'author' in item && <p class="muted" translate="no">{item.author}</p>}{item.note && <p class="entry-note" translate={demo ? undefined : 'no'}>{item.note}</p>}</div></div></template>)}
+  {[...games.map(game => ({...game, key: `game-${game.id}`})), ...books.map(book => ({...book, key: `book-${book.id}`}))].map(item => <template id={`off-entry-${item.key}`}><div class="entry-detail"><CollectionImage src={item.cover} image={item.image} alt="" width={400} height={600} /><div><p class="item-status">{statuses[item.status]}</p><h3 translate="no">{item.title}</h3>{'author' in item && <p class="muted" translate="no">{item.author}</p>}{item.note && <p class="entry-note" translate={demo ? undefined : 'no'}>{item.note}</p>}</div></div></template>)}
 </section>
 <script>
   import '../../scripts/off-the-clock';
@@ -85,7 +91,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   .gallery-section { margin-bottom: 48px; }
   .photo-composition { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(3, clamp(100px, 12vw, 160px)); gap: 14px; }
   .photo { position: relative; display: block; min-width: 0; overflow: hidden; border-radius: 8px; background: var(--color-surface); }
-  .photo img { width: 100%; height: 100%; object-fit: cover; object-position: var(--photo-position); transition: transform 220ms ease; }
+  .photo :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: var(--photo-position); transition: transform 220ms ease; }
   .photo-1 { grid-area: 1 / 1 / 3 / 8; margin-bottom: 24px; }
   .photo-2 { grid-area: 1 / 8 / 3 / 11; margin-top: 28px; }
   .photo-3 { grid-area: 1 / 11 / 2 / 13; margin-top: 12px; }
@@ -93,7 +99,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   .photo-5 { grid-area: 3 / 5 / 4 / 8; margin-top: -24px; margin-bottom: 18px; }
   .photo-6 { grid-area: 3 / 8 / 4 / 13; }
   .photo-caption { position: absolute; inset: auto 0 0; padding: 24px 12px 10px; color: white; font-size: 13px; background: linear-gradient(transparent, rgb(0 0 0 / 65%)); opacity: 0; transition: opacity 180ms ease; }
-  .photo:hover img, .photo:focus-visible img { transform: scale(1.025); }
+  .photo:hover :global(img), .photo:focus-visible :global(img) { transform: scale(1.025); }
   .photo:hover .photo-caption, .photo:focus-visible .photo-caption { opacity: 1; }
   .gallery-hint { margin-top: 12px; color: var(--color-muted); font-size: 13px; }
   .collections-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
@@ -104,7 +110,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   .book-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 12px; align-content: space-around; flex: 1; padding: 8px 4px 12px; }
   button { font: inherit; color: inherit; cursor: pointer; }
   .cover-button { display: block; border: 0; padding: 0; background: var(--color-surface); border-radius: 5px; min-width: 44px; min-height: 44px; transition: transform 180ms ease; }
-  .cover-button img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: inherit; }
+  .cover-button :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: inherit; }
   .cover-button:hover { transform: translateY(-3px); }
   .book-cover { box-shadow: 2px 3px 6px rgb(0 0 0 / 15%); }
   .current { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--color-border); font-size: 14px; }
@@ -114,7 +120,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   .last-visited { margin-top: 42px; }
   .last-visited h3 { margin-bottom: 16px; }
   .postcard { display: grid; grid-template-columns: 160px minmax(0, 1fr); align-items: center; gap: 24px; margin: 0; }
-  .postcard img { width: 100%; height: 116px; object-fit: cover; border-radius: 7px; }
+  .postcard :global(img) { width: 100%; height: 116px; object-fit: cover; border-radius: 7px; }
   .postcard-location { font-size: 12px; color: var(--color-muted); }
   .postcard h4 { font-weight: 600; font-size: 17px; margin: 3px 0 5px; }
   .postcard p { font-size: 14px; color: var(--color-muted); }
@@ -127,7 +133,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
   .dialog-close { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--color-surface); }
   .dialog-demo { font-size: 13px; color: var(--color-muted); margin: -12px 0 16px; }
   @keyframes off-clock-open { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  :global(:root[data-motion='reduce']) .photo img, :global(:root[data-motion='reduce']) .photo-caption, :global(:root[data-motion='reduce']) .cover-button { transition: none; }
+  :global(:root[data-motion='reduce']) .photo :global(img), :global(:root[data-motion='reduce']) .photo-caption, :global(:root[data-motion='reduce']) .cover-button { transition: none; }
   :global(:root[data-motion='reduce']) dialog[open] { animation: none; }
   @media (max-width: 767px) {
     .photo-composition { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 140px 80px 140px 100px; gap: 10px; }
@@ -140,7 +146,7 @@ const statuses = { playing: 'Currently playing', played: 'Played', reading: 'Rea
     .collections-pair { grid-template-columns: 1fr; gap: 40px; }
     .book-grid { gap: 20px 14px; }
     .postcard { grid-template-columns: 100px minmax(0, 1fr); gap: 16px; align-items: start; }
-    .postcard img { height: 140px; }
+    .postcard :global(img) { height: 140px; }
     dialog { padding: 16px; }
   }
 </style>
