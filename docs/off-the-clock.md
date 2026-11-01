@@ -19,8 +19,22 @@ labelled as a design preview; they are not the owner's actual history.
 - `lastVisited`: one photo, place name, location, date and short memory. Use `null`
   for the empty state. Dates are display strings; only add details you want public.
 
-Put local media under `public/images/off-the-clock/` and use root-relative paths.
-The sample assets are isolated in `demo/` and credited in
+For optimized photos and raster covers, put originals in `src/assets/off-the-clock/`
+and import them into the data file. Supply the imported metadata as `image` and
+its `src` as the URL; use its width/height for gallery entries. Astro generates
+responsive WebP files during the build. The gallery's size hints account for
+portrait crops, and the lightbox keeps the full original. For example:
+
+```ts
+import moment from '../assets/off-the-clock/my-photo.jpg';
+// In a gallery entry:
+// src: moment.src, image: moment, width: moment.width, height: moment.height
+```
+
+Root-relative paths under `public/images/off-the-clock/` still work without the
+optional `image` field; these files are served as supplied. SVG book covers stay
+in `public/` without raster conversion. The sample originals are isolated in
+`src/assets/off-the-clock/demo/`, with SVGs in `public/images/off-the-clock/demo/`, and credited in
 `public/licenses/off-the-clock-demo.txt`. Book cover illustrations were created
 for this preview; they are not publisher covers. Gallery and cover images load
 lazily. Dialogs use the shared scroll lock, native focus containment and Escape;
