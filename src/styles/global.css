@@ -11,6 +11,9 @@ h3 { font-size: 17px; line-height: 1.5; font-weight: 600; }
 p { max-width: 65ch; }
 a { color: inherit; text-underline-offset: 4px; }
 ::placeholder { color: var(--color-placeholder); opacity: 1; }
+/* Anchor destinations receive programmatic focus for reading order, not a
+   control-style ring around the entire content block. Interactive rings remain. */
+:where(main, section)[tabindex='-1']:focus { outline: none; }
 /* One focus ring for every interactive element; components keep their own radius. */
 :where(a[href], button, input, textarea, select, summary, [tabindex='0']):focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 :where(a[href], summary, [tabindex='0']):where(:focus-visible) { border-radius: 4px; }
