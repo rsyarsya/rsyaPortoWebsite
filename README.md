@@ -77,6 +77,8 @@ The background uses the actual World and AsciiRenderer from [stackedlol/ascii-sh
 
 Rate limit: 3 messages per client address per 10 minutes, kept in process memory. Each limiter stores at most 5,000 active address buckets; at capacity, new addresses receive a retry response until a bucket expires, without evicting existing limits. This is best-effort: it holds on one long-lived Node server, but resets on restart and is per-instance on serverless hosts. Shared request guards count bytes as the body streams in and stop reading at the route's cap, even without an accurate Content-Length. Only the application/json media type is accepted (optional charset parameters are allowed).
 
+The browser uses a 20-second deadline covering response headers and JSON. A disconnected or timed-out request is reported as unconfirmed delivery, preserving the draft. Retries of an unchanged draft reuse an in-memory UUID; an edited draft or “Write another message” creates a new one. The server validates that UUID and scopes the provider's `Idempotency-Key` to a SHA-256 digest of the exact normalized mail payload, including its server-owned recipient. Resend replays matching requests for [24 hours](https://resend.com/docs/dashboard/emails/idempotency-keys); no automatic retries or permanent deduplication are promised. The key and draft are not stored in localStorage. A provider conflict for an attempt still in progress is explained as pending rather than a definite failure. Older clients without a key remain supported.
+
 Server environment variables (read at runtime via `astro:env`, never sent to the browser; set them in the host's environment, not in the repository):
 
 | Variable | Required | Default |
