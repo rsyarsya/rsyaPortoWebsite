@@ -42,6 +42,8 @@ if (root) {
   };
 
   function showTrack(track: Track, heading: string, source: Source) {
+    title.setAttribute('translate', 'no');
+    sub.setAttribute('translate', track.artists.length ? 'no' : 'yes');
     const a = document.createElement('a');
     a.href = track.album.url;
     a.className = 'np-art-link';
@@ -69,6 +71,8 @@ if (root) {
   }
 
   function showText(state: string, heading: string, line: string, detail = '') {
+    title.removeAttribute('translate');
+    sub.removeAttribute('translate');
     root!.dataset.state = state;
     art.innerHTML = disc;
     label.textContent = heading;
