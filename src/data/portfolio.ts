@@ -59,20 +59,20 @@ export const experience = [
   {
     organization: 'NightLogin · DTETI FT UGM',
     role: 'Head of Human Resources',
-    period: 'Jan 2025 – Present',
+    period: 'Jan 2026 – Present',
     description: 'Coordinating HR programs, member development activities, and internal and external opportunity sharing for NightLogin members.',
-  },
-  {
-    organization: 'HydroConnect',
-    role: 'Vice Project Director, Power Generation & Instrumentation',
-    period: 'Mar 2025 – Mar 2026',
-    description: 'Coordinated power-generation deployment and IoT instrumentation for community clean water infrastructure.',
   },
   {
     organization: 'KMTETI FT UGM',
     role: 'Head of Social Affairs Division',
-    period: 'Jan 2025 – Dec 2025',
+    period: 'Jan 2026 – Present',
     description: 'Led community development programs and coordinated volunteers and local stakeholders in Pengos and Srimulyo.',
+  },
+  {
+    organization: 'HydroConnect',
+    role: 'Vice Project Director, Power Generation & Instrumentation',
+    period: 'Nov 2024 – Mar 2026',
+    description: 'Coordinated power-generation deployment and IoT instrumentation for community clean water infrastructure.',
   },
 ] as const;
 
