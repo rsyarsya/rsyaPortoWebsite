@@ -26,5 +26,5 @@ const functions = files.filter(p => p.endsWith('.vc-config.json')).map(p => JSON
 assert(functions.length > 0 && functions.every(f => f.runtime === 'nodejs22.x' && f.maxDuration === 30), 'Node serverless runtime');
 assert(!files.some(p => /(?:^|[\\/])(?:\.env(?:\..*)?|AGENTS\.md|CLAUDE\.md)$/.test(p)), 'Private source traced into functions');
 const deployment = JSON.parse(readFileSync('vercel.json', 'utf8'));
-assert(deployment.redirects.some(r => r.permanent && r.has?.some(h => h.type === 'host' && h.value === 'www.rasyadwaarsya.my.id') && r.destination === 'https://rasyadwaarsya.my.id/:path*'), 'www redirect');
+assert(deployment.redirects.some(r => r.permanent && r.has?.some(h => h.type === 'host' && h.value === 'www.rasyadwaarsya.my.id') && r.source === '/:path(.*)' && r.destination === 'https://rasyadwaarsya.my.id/:path'), 'www redirect');
 console.log(`Verified ${production ? 'production' : 'preview'} artifact: three pages, indexing, canonicals, sitemap, social card metadata, functions and domain redirect.`);
