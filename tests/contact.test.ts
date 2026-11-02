@@ -84,4 +84,44 @@ describe('POST /api/contact', () => {
     expect(limited.status).toBe(429);
     expect(limited.headers.get('Retry-After')).toBeTruthy();
   });
+
+  it('reuses a private payload-scoped provider key for retries, not for another draft', async () => {
+    const opts = options({ limiter: createRateLimiter({ limit: 10, windowMs: 600_000 }) });
+    const key = '3db4cb45-11a7-4b80-8f15-b759a5818e83';
+    await handleContact(request(valid, { 'Idempotency-Key': key }), opts);
+    await handleContact(request(valid, { 'Idempotency-Key': key }), opts);
+    await handleContact(request({ ...valid, message: 'A different message' }, { 'Idempotency-Key': key }), opts);
+    await handleContact(request(valid, { 'Idempotency-Key': key }), { ...opts, config: { ...opts.config, to: 'other-owner@example.com' } });
+    const calls = (opts.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    const keys = calls.map(([, init]) => init.headers['Idempotency-Key']);
+    expect(keys[0]).toBe(keys[1]);
+    expect(keys[2]).not.toBe(keys[0]);
+    expect(keys[3]).not.toBe(keys[0]);
+    expect(keys[0]).toMatch(/^portfolio-contact\/[0-9a-f-]{36}\/[0-9a-f]{64}$/);
+    expect(keys[0]).not.toContain(valid.email);
+    expect(keys[0].length).toBeLessThan(256);
+  });
+
+  it('rejects malformed submission keys and keeps legacy requests compatible', async () => {
+    const opts = options();
+    expect((await handleContact(request(valid, { 'Idempotency-Key': 'not-a-uuid' }), opts)).status).toBe(400);
+    expect(opts.fetch).not.toHaveBeenCalled();
+    expect((await handleContact(request(valid), opts)).status).toBe(200);
+    expect((opts.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].headers['Idempotency-Key']).toBeUndefined();
+  });
+
+  it('does not mistake an uncertain delivery or concurrent retry for a definite failure', async () => {
+    for (const fetch of [
+      vi.fn(async () => { throw new DOMException('Network lost', 'AbortError'); }),
+      vi.fn(async () => Response.json({ error: 'upstream' }, { status: 502 })),
+      vi.fn(async () => Response.json({})),
+    ]) {
+      const response = await handleContact(request(valid), options({ fetch }));
+      expect(response.status).toBe(502);
+      expect((await response.json()).code).toBe('delivery_unknown');
+    }
+    const response = await handleContact(request(valid), options({ fetch: vi.fn(async () => Response.json({ name: 'concurrent_idempotent_requests' }, { status: 409 })) }));
+    expect(response.status).toBe(409);
+    expect((await response.json()).code).toBe('delivery_pending');
+  });
 });
