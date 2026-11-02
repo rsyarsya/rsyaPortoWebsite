@@ -25,15 +25,24 @@ export function isSameOrigin(request: Request): boolean {
  * Best-effort fixed-window limit kept in process memory. It holds on a single
  * long-lived Node server; on serverless each instance has its own memory.
  */
-export function createRateLimiter({ limit, windowMs, now = Date.now }: { limit: number; windowMs: number; now?: () => number }) {
+export function createRateLimiter({ limit, windowMs, maxKeys = 5000, now = Date.now }: { limit: number; windowMs: number; maxKeys?: number; now?: () => number }) {
   const hits = new Map<string, { count: number; resetAt: number }>();
   return {
     /** Returns seconds until retry when the key is over the limit, otherwise 0 and counts the hit. */
     hit(key: string): number {
       const time = now();
-      if (hits.size > 5000) for (const [k, v] of hits) if (v.resetAt <= time) hits.delete(k);
       const entry = hits.get(key);
       if (!entry || entry.resetAt <= time) {
+        if (!entry && hits.size >= maxKeys) {
+          let nextExpiry = Infinity;
+          for (const [k, value] of hits) {
+            if (value.resetAt <= time) hits.delete(k);
+            else nextExpiry = Math.min(nextExpiry, value.resetAt);
+          }
+          // Do not evict active buckets: rotating addresses must not reset their
+          // limits or grow process memory without a bound.
+          if (hits.size >= maxKeys) return Math.max(1, Math.ceil((nextExpiry - time) / 1000));
+        }
         hits.set(key, { count: 1, resetAt: time + windowMs });
         return 0;
       }
@@ -51,18 +60,40 @@ export type RateLimiter = ReturnType<typeof createRateLimiter>;
  */
 export async function readGuardedJson(request: Request, maxBytes: number): Promise<Record<string, unknown> | Response> {
   if (!isSameOrigin(request)) return json(403, { ok: false, code: 'forbidden_origin' });
-  if (!(request.headers.get('content-type') ?? '').toLowerCase().startsWith('application/json')) {
+  const mediaType = (request.headers.get('content-type') ?? '').split(';', 1)[0].trim().toLowerCase();
+  if (mediaType !== 'application/json') {
     return json(415, { ok: false, code: 'unsupported_media_type' });
   }
   if (Number(request.headers.get('content-length') ?? 0) > maxBytes) return json(413, { ok: false, code: 'too_large' });
 
-  let raw: string;
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   try {
-    raw = await request.text();
+    reader = request.body?.getReader();
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        bytes += value.byteLength;
+        if (bytes > maxBytes) {
+          // Stop at the cap, including chunked requests and understated lengths.
+          // A misbehaving source's cancellation must not delay the 413 response.
+          void reader.cancel().catch(() => {});
+          return json(413, { ok: false, code: 'too_large' });
+        }
+        chunks.push(value);
+      }
+    }
   } catch {
     return json(400, { ok: false, code: 'bad_request' });
+  } finally {
+    reader?.releaseLock();
   }
-  if (new TextEncoder().encode(raw).byteLength > maxBytes) return json(413, { ok: false, code: 'too_large' });
+  const input = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) { input.set(chunk, offset); offset += chunk.byteLength; }
+  const raw = new TextDecoder().decode(input);
 
   let body: unknown;
   try {
