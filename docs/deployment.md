@@ -29,6 +29,8 @@ Set secret variables in Vercel's environment settings, separately for Production
 
 Generate a rate-limit secret locally with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`, then put it directly into the local untracked `.env` and Vercel secrets. Do not paste it into logs or commits.
 
+A sending-only Resend key cannot list domains: a `restricted_api_key` response from `/domains` is not proof of an invalid key. Confirm domain status in the Resend dashboard rather than rotating a working sending key.
+
 Missing music credentials yield a neutral music state. Missing/invalid contact or database configuration yields an honest unavailable response rather than a fake submission success.
 
 ## Database and abuse protection

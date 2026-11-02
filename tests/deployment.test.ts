@@ -10,6 +10,7 @@ import { checkRateLimit } from '../src/server/http';
 import { handleContact } from '../src/server/contact';
 import { createEntry } from '../src/server/guestbook';
 import { databaseFactory } from '../src/server/database';
+import { safeClientAddress } from '../src/server/client-address';
 import { canonicalUrl, isProductionSite } from '../src/lib/site';
 
 it('only indexes production and always canonicalizes to the owned apex domain', () => {
@@ -90,4 +91,10 @@ it('blocks incomplete production builds and accepts complete configuration witho
   for (const invalid of [{ GUESTBOOK_DB_URL: 'file:test.db' }, { CONTACT_FROM_EMAIL: 'onboarding@resend.dev' }, { RATE_LIMIT_SECRET: 'short' }]) {
     expect(spawnSync(process.execPath, ['scripts/check-deploy-env.mjs'], { env: { ...good, ...invalid }, encoding: 'utf8' }).status).toBe(1);
   }
+});
+
+it('uses a shared unknown bucket when an adapter cannot supply a client address', () => {
+  expect(safeClientAddress({ clientAddress: '203.0.113.7' })).toBe('203.0.113.7');
+  expect(safeClientAddress({ clientAddress: '' })).toBe('unknown');
+  expect(safeClientAddress({ get clientAddress(): string { throw new Error('Unavailable in adapter'); } })).toBe('unknown');
 });

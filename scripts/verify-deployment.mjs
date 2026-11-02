@@ -5,6 +5,8 @@ const production = process.argv.includes('--production');
 const out = '.vercel/output';
 const read = path => readFileSync(join(out, path), 'utf8');
 const assert = (ok, label) => { if (!ok) throw new Error(label); };
+const card = readFileSync(join(out, 'static/social-card.png'));
+assert(card.readUInt32BE(16) === 1200 && card.readUInt32BE(20) === 630, 'Social card asset dimensions');
 const config = JSON.parse(read('config.json'));
 assert(config.version === 3, 'Vercel Build Output API version');
 for (const path of ['index.html', 'guestbook/index.html', 'playground/index.html']) {
