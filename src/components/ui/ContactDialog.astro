@@ -69,6 +69,7 @@ import { profile } from '../../data/profile';
     const dirty = new Set<FieldName>();
     let state: State = 'idle';
     let returnTo: HTMLElement | null = null;
+    let locked = false;
 
     // The state outlives the open dialog: closing never cancels a send or discards its result,
     // and open() shows whatever the current state is.
@@ -149,7 +150,8 @@ import { profile } from '../../data/profile';
       if (dialog.open) return;
       returnTo = trigger;
       dialog.showModal();
-      lockScroll();
+      if (!locked) lockScroll();
+      locked = true;
       // A send in progress or an earlier result is announced first.
       if (state !== 'idle') status.focus();
       // Fine pointers start in Name; on touch the native default (the X) avoids popping the keyboard.
@@ -164,6 +166,9 @@ import { profile } from '../../data/profile';
 
     // The draft stays in the fields when the dialog closes; only a successful send clears it.
     dialog.addEventListener('close', () => {
+      // Ignore a queued event from a previous opening of this same dialog.
+      if (dialog.open || !locked) return;
+      locked = false;
       unlockScroll();
       returnTo?.focus({ preventScroll: true });
       returnTo = null;

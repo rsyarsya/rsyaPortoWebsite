@@ -31,7 +31,9 @@ function setup(section: HTMLElement, dialog: HTMLDialogElement) {
     returnTo = trigger;
     if (!dialog.open) {
       dialog.showModal();
-      lockScroll();
+      // A native close event may still be queued when the dialog reopens.
+      // Reuse that session's lock until the current opening actually closes.
+      if (!locked) lockScroll();
       locked = true;
     }
     closeButton.focus({ preventScroll: true });
@@ -125,6 +127,6 @@ function setup(section: HTMLElement, dialog: HTMLDialogElement) {
     showPhoto(photoIndex + (event.key === 'ArrowRight' ? 1 : -1));
     closeButton.focus({ preventScroll: true });
   }, { signal });
-  dialog.addEventListener('close', cleanup, { signal });
+  dialog.addEventListener('close', () => { if (!dialog.open) cleanup(); }, { signal });
   if (import.meta.hot) import.meta.hot.dispose(() => { dialog.close(); cleanup(); controller.abort(); });
 }
