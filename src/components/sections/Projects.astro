@@ -7,7 +7,7 @@ import { projects } from '../../data/portfolio';
   <ul class="placeholder-list">
     {projects.map(project => <li class="list-row">
       <div class="row-heading"><h3>{project.name}</h3><span class="metadata">{project.role}</span></div>
-      <p>{project.description}</p>
+      <p>{project.summary}</p>
       <div class="project-meta"><span>{project.context}</span><ul aria-label={`${project.name} technologies`}>{project.technologies.map(technology => <li>{technology}</li>)}</ul></div>
       <button class="project-open" data-project={project.id} aria-haspopup="dialog">View project <span aria-hidden="true">↗</span></button>
     </li>)}

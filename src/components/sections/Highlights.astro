@@ -20,7 +20,6 @@ const groups = [
         <h3>{group.title}</h3>
         <ul>{highlights.filter(item => item.category === group.category).map(item => <li class="highlight-entry">
           <div class="highlight-heading"><h4>{item.title}</h4><span class="metadata">{item.context}</span></div>
-          <p>{item.description}</p>
         </li>)}</ul>
       </div>)}
     </div>
@@ -45,7 +44,6 @@ const groups = [
   .highlight-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 24px; }
   .highlight-heading h4 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.5; }
   .highlight-heading .metadata { flex: none; }
-  .highlight-entry p { margin-top: 6px; color: var(--color-muted); font-size: 15px; }
   :global(:root[data-motion='reduce']) dialog[open] { animation: none; }
   @keyframes highlights-open { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @media (max-width: 767px) { dialog { padding: 20px; } header { top: -20px; } .highlight-heading { flex-direction: column; gap: 3px; } }

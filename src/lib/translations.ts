@@ -1,6 +1,15 @@
 // Curated site copy. English is the source/default; personal names, technical
 // names, listening metadata and visitor-authored notes are never translated.
 const indonesia: Record<string, string> = {
+  'Information Technology student at UGM. I build connected systems across data, AI, cloud, and IoT.': 'Mahasiswa Teknologi Informasi UGM. Saya membangun sistem terhubung di bidang data, AI, cloud, dan IoT.',
+  'Solar-powered water infrastructure with IoT monitoring.': 'Infrastruktur air bertenaga surya dengan pemantauan IoT.',
+  'A wearable for ostomy leakage-risk monitoring.': 'Perangkat wearable untuk memantau risiko kebocoran ostomi.',
+  'An interactive simulation of fish schooling in changing currents.': 'Simulasi interaktif kawanan ikan dalam arus yang berubah.',
+  'An academic project exploring cloud applications on AWS.': 'Proyek akademik yang mengeksplorasi aplikasi cloud di AWS.',
+  'Ranked 1st in MIPA · 94.96/100': 'Peringkat 1 paralel MIPA · 94,96/100',
+  'Leave a note or say hello.': 'Tinggalkan pesan atau sapa saya.',
+  'Open to projects and internship opportunities.': 'Terbuka untuk proyek dan kesempatan magang.',
+
   'Head of Human Resources': 'Kepala Divisi Human Resources',
   'Coordinating HR programs, member development activities, and internal and external opportunity sharing for NightLogin members.': 'Mengoordinasikan program HR, pengembangan anggota, serta berbagi peluang internal dan eksternal untuk anggota NightLogin.',
   'Science stream (MIPA)': 'Jurusan MIPA',
