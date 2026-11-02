@@ -2,8 +2,8 @@
 //
 // Contract: while the contact water scene is animating (on screen, tab visible,
 // html[data-motion='full']), <html> carries the `data-scene-active` attribute.
-// Any other decorative loop (e.g. the ASCII background) must stay paused while
-// it is present, so the page never runs two heavy canvas loops at once.
+// Other decorative loops can use this signal to reduce their work. The ASCII
+// ocean drops to 10fps while a scene is active, keeping the background continuous.
 // Subscribe with onSceneActiveChange() instead of polling; the attribute is
 // also visible to CSS and to browser tests.
 const root = document.documentElement;

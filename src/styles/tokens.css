@@ -51,8 +51,8 @@
   --scene-crest:      #456657;
   --scene-line-still: rgb(126 168 138 / 30%);
   /* Margin ASCII background (canvas reads these): glyph color and peak alpha. */
-  --ascii-glyph: #7EA88A;
-  --ascii-alpha: 0.34;
+  --ascii-glyph: #456657;
+  --ascii-alpha: 0.56;
 
   /* Elevation */
   --shadow-nav:   0 3px 10px rgb(0 0 0 / 6%);
@@ -111,8 +111,8 @@
   --scene-crest:      #A8BDA0;
   --scene-line-still: rgb(90 128 104 / 40%);
   /* Margin ASCII background */
-  --ascii-glyph: #5A8068;
-  --ascii-alpha: 0.38;
+  --ascii-glyph: #A8BDA0;
+  --ascii-alpha: 0.52;
 
   /* Elevation: darker canvas needs a stronger shadow to read at all. */
   --shadow-nav:   0 3px 10px rgb(0 0 0 / 22%);

@@ -1,0 +1,24 @@
+Off the Clock design preview assets
+
+These are sample collections, not the portfolio owner's personal photos or history.
+
+Gallery photographs: Unsplash, downloaded as 1200px JPEGs, 1 November 2026.
+Unsplash license: https://unsplash.com/license
+Original image endpoints (same order as photo-1.jpg through photo-6.jpg):
+https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05
+https://images.unsplash.com/photo-1441974231531-c6227db76b6e
+https://images.unsplash.com/photo-1518837695005-2083093ee35b
+https://images.unsplash.com/photo-1470770841072-f978cf4d019e
+https://images.unsplash.com/photo-1447752875215-b2761acb3c5d
+https://images.unsplash.com/photo-1500534623283-312aade485b7
+
+Game cover artwork: respective game publishers/rightsholders, official Steam
+library artwork used to identify the sample titles. No ownership claimed.
+Source pattern: https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg
+Stardew Valley: 413150; Hollow Knight: 367520; Celeste: 504230;
+Portal 2: 620; Terraria: 105600; Hades: 1145360; Outer Wilds: 753640;
+Undertale: 391540; Journey: 638230.
+
+Book cover SVGs: original typographic illustrations made for this portfolio's
+preview, not reproductions of published book covers. Titles/authors identify
+sample bookshelf entries and do not imply endorsement.

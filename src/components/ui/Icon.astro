@@ -1,7 +1,14 @@
 ---
-interface Props { name: 'home' | 'work' | 'notes' | 'guestbook' | 'contact' | 'arrow-up-right' | 'github' | 'user' | 'activity' | 'theme' | 'settings' | 'close' | 'search'; }
+interface Props { name: 'home' | 'work' | 'notes' | 'guestbook' | 'contact' | 'arrow-up-right' | 'github' | 'user' | 'activity' | 'theme' | 'settings' | 'close' | 'search' | 'language' | 'system' | 'motion-on' | 'motion-off' | 'layout-default' | 'layout-wide' | 'layout-wider'; }
 const { name } = Astro.props;
 const paths = {
+  language: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c4 5 4 13 0 18-4-5-4-13 0-18Z',
+  system: 'M5 4h14v12H5ZM3 20h18M9 16v4m6-4v4',
+  'motion-on': 'M5 8h3m-5 4h5m-3 4h3m4-10 8 6-8 6Z',
+  'motion-off': 'M9 6v12m6-12v12M4 4l16 16',
+  'layout-default': 'M8 4v16m8-16v16M3 8h2m-2 8h2m14-8h2m-2 8h2',
+  'layout-wide': 'M6 4v16m12-16v16M10 8v8m4-8v8',
+  'layout-wider': 'M3 4v16m18-16v16M8 8v8m4-8v8m4-8v8',
   search: 'M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Zm5-2 4 4',
   close: 'M6 6l12 12M18 6 6 18',
   theme: 'M12 3a9 9 0 1 0 0 18V3Zm0 0a9 9 0 0 1 0 18',

@@ -31,15 +31,12 @@ const links = [
   header[data-state='hidden'] { opacity: 0; transform: translateY(calc(-100% - 24px)); pointer-events: none; }
   header:has(:focus-visible) { opacity: 1; transform: none; pointer-events: auto; }
   .destinations, .utilities { display: flex; align-items: center; }
-  .utilities { border-left: 1px solid var(--color-nav-border); padding-left: 8px; }
+  .utilities { border-left: 1px solid var(--color-nav-border); padding-left: 8px; transition: border-color 300ms ease-out; }
   a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px 12px; border-radius: 12px; color: var(--color-muted); font-size: 16px; font-weight: 600; text-decoration: none; }
   a:hover, a:focus-visible { color: var(--color-text); background: var(--color-surface); }
   a[aria-current] { color: var(--color-text); }
   .destinations :global(svg) { display: none; }
-  @media (min-width: 768px) {
-    header[data-state='top'] nav { padding-inline: 0; }
-    header[data-state='top'] .destinations { margin-left: -12px; }
-  }
+  /* Keep identical geometry in top/pill states: only the chrome fades. */
   @media (max-width: 767px) {
     .header-space { display: none; }
     header { inset: auto var(--page-gutter) max(12px, env(safe-area-inset-bottom)); }
@@ -55,5 +52,5 @@ const links = [
     a { padding: 6px; }
   }
   @media (max-width: 400px) { nav { padding-inline: 4px; } }
-  :global(html[data-motion='reduce']) header, :global(html[data-motion='reduce']) nav { transition: none; }
+  :global(html[data-motion='reduce']) header, :global(html[data-motion='reduce']) nav, :global(html[data-motion='reduce']) .utilities { transition: none; }
 </style>
