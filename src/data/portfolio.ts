@@ -4,6 +4,7 @@ export interface Project {
   id: string;
   name: string;
   description: string;
+  summary: string;
   role: string;
   context: string;
   technologies: readonly string[];
@@ -16,6 +17,7 @@ export interface Project {
 export const projects: readonly Project[] = [
   {
     id: 'hydroconnect',
+    summary: 'Solar-powered water infrastructure with IoT monitoring.',
     name: 'HydroConnect',
     description: 'Solar-powered clean water infrastructure with IoT water-quality monitoring in Dusun Pengos, Gunungkidul. I led power-generation deployment and oversaw instrumentation.',
     role: 'Vice Project Director',
@@ -24,6 +26,7 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'ostosense',
+    summary: 'A wearable for ostomy leakage-risk monitoring.',
     name: 'OSTOSENSE',
     description: 'A medical wearable project for ostomy leakage-risk monitoring. I developed the ESP32-S3 edge-inference pipeline and sensor feature extraction, integrated with a mobile application.',
     role: 'AI Engineer',
@@ -32,6 +35,7 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'fish-schooling',
+    summary: 'An interactive simulation of fish schooling in changing currents.',
     name: 'Fish Schooling Simulation',
     description: 'An agent-based fish-schooling simulation under changing water currents, with adjustable parameters, real-time visualization, and group-coherence analysis.',
     role: 'Sole Developer',
@@ -40,6 +44,7 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'aws-cloud',
+    summary: 'An academic project exploring cloud applications on AWS.',
     name: 'AWS Cloud Project',
     description: 'An academic cloud project built on Amazon Web Services.',
     role: 'Course project',
