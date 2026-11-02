@@ -38,7 +38,10 @@ in `public/` without raster conversion. The sample originals are isolated in
 `public/licenses/off-the-clock-demo.txt`. Book cover illustrations were created
 for this preview; they are not publisher covers. Gallery and cover images load
 lazily. Dialogs use the shared scroll lock, native focus containment and Escape;
-photo arrow keys wrap through the gallery. Gallery links retain a full-image
+photo arrow keys and horizontal swipes wrap through the gallery. The lightbox keeps
+the current image while loading the next, crossfades after decoding, and offers
+retry on failure. Adjacent originals preload only after opening (disabled with
+Save-Data). Reduced motion disables the crossfade. Gallery links retain a full-image
 fallback without JavaScript. UI labels support English/Indonesia; personal
 captions, titles, author names and notes remain as supplied.
 

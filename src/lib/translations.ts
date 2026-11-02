@@ -1,6 +1,7 @@
 // Curated site copy. English is the source/default; personal names, technical
 // names, listening metadata and visitor-authored notes are never translated.
 const indonesia: Record<string, string> = {
+  'Loading photo…': 'Memuat foto…', 'This photo could not be loaded.': 'Foto ini tidak dapat dimuat.',
   'View project': 'Lihat proyek', 'Preview': 'Pratinjau', 'The problem': 'Masalah yang ditangani',
   'My role': 'Peran saya', 'Technologies': 'Teknologi', 'Results': 'Hasil', 'Project links': 'Tautan proyek',
   "We couldn't confirm delivery. Your message is still here, so you can try again.": 'Pengiriman belum dapat dikonfirmasi. Pesanmu masih di sini dan bisa dicoba kembali.',
