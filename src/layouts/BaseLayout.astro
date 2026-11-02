@@ -14,7 +14,7 @@ const ASCII_BACKGROUND_ENABLED = true;
 
 import { canonicalUrl, isProductionSite } from '../lib/site';
 const canonical = canonicalUrl(Astro.url.pathname);
-const indexable = isProductionSite(import.meta.env.VERCEL_ENV);
+const indexable = isProductionSite(import.meta.env.VERCEL_ENV, import.meta.env.PUBLIC_SITE_INDEXABLE);
 interface Props { title?: string; description?: string; }
 const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Information Technology student at Universitas Gadjah Mada focused on data, AI, cloud, and IoT. Seeking a six-month internship starting January 2027.' } = Astro.props;
 ---

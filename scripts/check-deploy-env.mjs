@@ -2,7 +2,11 @@ import { pathToFileURL } from 'node:url';
 // Production build gate. Reports variable names only, never their values.
 export function deploymentProblems(env) {
   const problems = [];
-  for (const name of ['RESEND_API_KEY', 'CONTACT_FROM_EMAIL', 'GUESTBOOK_DB_URL', 'GUESTBOOK_DB_AUTH_TOKEN', 'RATE_LIMIT_SECRET']) {
+  const mode = env.PUBLIC_CONTACT_MODE || 'form';
+  if (!['form', 'email-link'].includes(mode)) problems.push('PUBLIC_CONTACT_MODE must be form or email-link');
+  const required = ['GUESTBOOK_DB_URL', 'GUESTBOOK_DB_AUTH_TOKEN', 'RATE_LIMIT_SECRET'];
+  if (mode !== 'email-link') required.push('RESEND_API_KEY', 'CONTACT_FROM_EMAIL');
+  for (const name of required) {
     if (!env[name]?.trim()) problems.push(`${name} is required`);
   }
   if (env.RATE_LIMIT_SECRET && env.RATE_LIMIT_SECRET.length < 32) problems.push('RATE_LIMIT_SECRET must contain at least 32 characters');

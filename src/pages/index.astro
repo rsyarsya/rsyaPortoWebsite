@@ -1,4 +1,5 @@
 ---
+import { CONTACT_FORM_ENABLED } from '../lib/contact-mode';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/layout/Container.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
@@ -28,5 +29,5 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     </main>
     <SiteFooter />
   </Container>
-  <ContactDialog />
+  {CONTACT_FORM_ENABLED && <ContactDialog />}
 </BaseLayout>

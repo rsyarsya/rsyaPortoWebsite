@@ -1,6 +1,7 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
 import Icon from '../ui/Icon.astro';
+import { CONTACT_FORM_ENABLED } from '../../lib/contact-mode';
 import { profile } from '../../data/profile';
 ---
 <section id="contact" aria-labelledby="contact-title">
@@ -11,7 +12,7 @@ import { profile } from '../../data/profile';
       <SectionHeading id="contact-title" title="Let's get in touch" />
       <p class="muted">Open to projects and internship opportunities.</p>
       <div class="contact-actions">
-        <a class="button button-primary" href={`mailto:${profile.email}`} data-contact-open><Icon name="contact" />Email me</a>
+        <a class="button button-primary" href={`mailto:${profile.email}`} data-contact-open={CONTACT_FORM_ENABLED || undefined}><Icon name="contact" />Email me</a>
       </div>
       <a class="email-address" href={`mailto:${profile.email}`}>{profile.email}</a>
     </div>

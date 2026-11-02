@@ -13,6 +13,12 @@ Production origin: **https://rasyadwaarsya.my.id**. Add **www.rasyadwaarsya.my.i
 - Only a build with `VERCEL_ENV=production` is indexable. Local/preview builds emit noindex metadata, a disallow-all robots file and an empty sitemap. Production emits index/follow, robots allowing public pages, and a sitemap with the three public pages. Canonical and social URLs always use the apex domain.
 - Vercel sets `VERCEL` and `VERCEL_ENV` automatically. Do not override them manually in the dashboard. Local testing can set them temporarily.
 
+## Initial Vercel-only release
+
+Set `PUBLIC_CONTACT_MODE=email-link` and `PUBLIC_SITE_INDEXABLE=false` for the first release while custom-domain/email verification is deferred. Contact actions become ordinary mailto links throughout the site and command palette, the unavailable form is not rendered, and the contact endpoint returns 503 without sending. Guestbook and music remain enabled. This explicit mode skips the mail-key/sender production requirement but retains database and shared-limiter requirements.
+
+Once Resend is verified, configure its sender/key and change `PUBLIC_CONTACT_MODE=form`. Once the custom domain is serving this deployment, set `PUBLIC_SITE_INDEXABLE=true`. Both flags require a rebuild/redeployment; secret values stay server-only. A Production bootstrap with indexing disabled uses the default (noindex) artifact verification command.
+
 ## Server variables
 
 Set secret variables in Vercel's environment settings, separately for Production and Preview. Never commit `.env`, examples containing credentials, `.vercel/`, or agent tooling. `.vercelignore` also prevents CLI uploads of these local files.

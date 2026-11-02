@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { CONTACT_FORM_ENABLED } from '../../lib/contact-mode';
 import { profile } from '../../data/profile';
 
 // Commands are plain data: a link (href/target), the contact dialog, or a preference value.
@@ -13,7 +14,7 @@ const commands: Command[] = [
   { label: 'Go to Contact', hint: 'Section', keywords: 'email reach', href: section('contact') },
   { label: 'Open guestbook', hint: 'Page', keywords: 'notes sign', href: '/guestbook/' },
   { label: 'Open playground', hint: 'Page', keywords: 'experiment water ripple waves', href: '/playground/' },
-  { label: 'Send me a message', hint: 'Contact', keywords: 'contact email message get in touch', action: 'contact', href: '/#contact' },
+  { label: 'Send me a message', hint: 'Contact', keywords: 'contact email message get in touch', action: CONTACT_FORM_ENABLED ? 'contact' : undefined, href: CONTACT_FORM_ENABLED ? '/#contact' : `mailto:${profile.email}` },
   { label: 'Open résumé', hint: 'PDF, new tab', keywords: 'resume cv pdf', href: profile.resume, target: '_blank' },
   { label: 'Theme: Light', hint: 'Theme', keywords: 'appearance mode color', pref: 'theme', value: 'light' },
   { label: 'Theme: Dark', hint: 'Theme', keywords: 'appearance mode color night', pref: 'theme', value: 'dark' },
