@@ -2,7 +2,7 @@
 // can be tested without the Astro runtime. The route (src/pages/api/contact.ts)
 // supplies configuration from astro:env.
 import { z } from 'astro/zod';
-import { fieldErrors, json, readGuardedJson, type RateLimiter } from './http';
+import { checkRateLimit, fieldErrors, json, readGuardedJson, type RateLimiter } from './http';
 
 // Re-exported so existing imports (route, tests) keep working.
 export { createRateLimiter, isSameOrigin, type RateLimiter } from './http';
@@ -49,8 +49,8 @@ export async function handleContact(request: Request, options: ContactOptions): 
   const submissionId = request.headers.get('Idempotency-Key');
   if (submissionId !== null && !z.uuid().safeParse(submissionId).success) return json(400, { ok: false, code: 'bad_request' });
 
-  const retryAfter = options.limiter.hit(options.clientAddress || 'unknown');
-  if (retryAfter > 0) return json(429, { ok: false, code: 'rate_limited' }, { 'Retry-After': String(retryAfter) });
+  const limited = await checkRateLimit(options.limiter, options.clientAddress);
+  if (limited) return limited;
 
   const { name, email, message } = parsed.data;
   const doFetch = options.fetch ?? fetch;

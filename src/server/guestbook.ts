@@ -4,7 +4,7 @@
 import { z } from 'astro/zod';
 import type { Client } from '@libsql/client';
 import { normalizeWebsite } from '../lib/website';
-import { fieldErrors, json, readGuardedJson, type RateLimiter } from './http';
+import { checkRateLimit, fieldErrors, json, readGuardedJson, type RateLimiter } from './http';
 
 export const MAX_BODY_BYTES = 8 * 1024;
 export const PAGE_SIZE = 20;
@@ -126,8 +126,10 @@ export async function createEntry(request: Request, { db, clientAddress = '', li
   }
   if (!db) return json(503, { ok: false, code: 'not_configured' });
 
-  const retryAfter = limiter?.hit(clientAddress || 'unknown') ?? 0;
-  if (retryAfter > 0) return json(429, { ok: false, code: 'rate_limited' }, { 'Retry-After': String(retryAfter) });
+  if (limiter) {
+    const limited = await checkRateLimit(limiter, clientAddress);
+    if (limited) return limited;
+  }
 
   const { name, website, message } = parsed.data;
   try {

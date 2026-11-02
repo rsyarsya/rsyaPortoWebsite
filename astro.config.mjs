@@ -1,16 +1,19 @@
 import { defineConfig, envField } from 'astro/config';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 // Pages stay prerendered (static). Only routes that set `prerender = false`
-// (src/pages/api/*) run on the server through the Node adapter.
+// (src/pages/api/*) run on the server through the Vercel adapter.
 export default defineConfig({
+  site: 'https://rasyadwaarsya.my.id',
+  trailingSlash: 'always',
   output: 'static',
-  adapter: node({ mode: 'standalone', bodySizeLimit: 64 * 1024 }),
+  adapter: vercel({ maxDuration: 30 }),
   session: false,
   devToolbar: { enabled: false },
   env: {
     // Read at runtime on the server only; never inlined into client code.
     schema: {
+      RATE_LIMIT_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
       RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
       CONTACT_TO_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
       CONTACT_FROM_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),

@@ -52,7 +52,17 @@ export function createRateLimiter({ limit, windowMs, maxKeys = 5000, now = Date.
     },
   };
 }
-export type RateLimiter = ReturnType<typeof createRateLimiter>;
+export interface RateLimiter { hit(key: string): number | Promise<number>; }
+
+/** Fail closed if a shared limiter cannot be reached; do not send mail/store notes. */
+export async function checkRateLimit(limiter: RateLimiter, address: string): Promise<Response | null> {
+  try {
+    const retry = await limiter.hit(address || 'unknown');
+    return retry > 0 ? json(429, { ok: false, code: 'rate_limited' }, { 'Retry-After': String(retry) }) : null;
+  } catch {
+    return json(503, { ok: false, code: 'temporarily_unavailable' }, { 'Retry-After': '30' });
+  }
+}
 
 /**
  * Same-origin, JSON content type, body size cap, JSON object and honeypot (`trap`).
