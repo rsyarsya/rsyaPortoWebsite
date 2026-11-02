@@ -10,13 +10,51 @@ import { projects } from '../../data/portfolio';
       <div class="row-heading"><h3>{project.name}</h3><span class="metadata">{project.role}</span></div>
       <p>{project.description}</p>
       <div class="project-meta"><span>{project.context}</span><ul aria-label={`${project.name} technologies`}>{project.technologies.map(technology => <li>{technology}</li>)}</ul></div>
+      <button class="project-open" data-project={project.id} aria-haspopup="dialog">View project <span aria-hidden="true">↗</span></button>
     </li>)}
   </ul>
+  <dialog id="project-dialog" aria-labelledby="project-dialog-title" data-lenis-prevent>
+    <header><h2 id="project-dialog-title"></h2><button class="project-close" aria-label="Close">×</button></header>
+    <div data-project-content></div>
+  </dialog>
+  {projects.map(project => <template id={`project-${project.id}`}>
+    <p class="project-summary">{project.description}</p><p class="project-context">{project.context}</p>
+    {project.media && <figure><img src={project.media.src} alt={project.media.alt} />{project.media.preview && <figcaption>Preview</figcaption>}</figure>}
+    {project.problem && <div class="project-block"><h3>The problem</h3><p>{project.problem}</p></div>}
+    <div class="project-block"><h3>My role</h3><p>{project.role}</p>{project.contribution && <p>{project.contribution}</p>}</div>
+    <div class="project-block"><h3>Technologies</h3><ul class="project-technologies">{project.technologies.map(technology => <li>{technology}</li>)}</ul></div>
+    {project.outcome && <div class="project-block"><h3>Results</h3><p>{project.outcome}</p></div>}
+    {!!project.links?.length && <nav aria-label="Project links">{project.links.map(link => <a href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}</nav>}
+  </template>)}
 </section>
+<script>import '../../scripts/project-details';</script>
 <style>
   h3 { font-family: var(--font-serif); font-size: 21px; font-weight: 500; }
   .list-row > p { margin-top: 6px; color: var(--color-muted); }
   .project-meta { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-top: 14px; font-size: 13px; color: var(--color-muted); }
   .project-meta ul { display: flex; flex-wrap: wrap; gap: 6px; }
   .project-meta li { border: 1px solid var(--color-border); border-radius: 5px; padding: 1px 7px; }
+</style>
+
+<style is:global>
+#projects .project-open { display:flex; align-items:center; gap:8px; min-height:44px; margin-top:12px; padding:6px 0; border:0; background:transparent; color:var(--color-accent); font:inherit; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+#project-dialog { width:min(880px, calc(100% - 32px)); max-height:calc(100dvh - 40px); padding:32px; overflow:auto; overscroll-behavior:contain; border:1px solid var(--color-border); border-radius:16px; background:var(--color-bg); color:var(--color-text); box-shadow:var(--shadow-panel); }
+#project-dialog::backdrop { background:rgb(12 17 14 / 72%); }
+#project-dialog[open] { animation:project-open 180ms ease-out; }
+#project-dialog header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
+#project-dialog h2 { font:500 clamp(26px, 4vw, 36px)/1.2 var(--font-serif); }
+#project-dialog h3 { font:500 21px var(--font-serif); margin-bottom:8px; }
+#project-dialog .project-close { flex:none; width:44px; height:44px; border:0; border-radius:50%; background:var(--color-surface); color:inherit; font-size:24px; cursor:pointer; }
+#project-dialog .project-summary { font-size:19px; line-height:1.6; }
+#project-dialog .project-context { color:var(--color-muted); margin-top:12px; }
+#project-dialog .project-block { margin-top:28px; }
+#project-dialog .project-block p + p { margin-top:8px; }
+#project-dialog .project-technologies { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; }
+#project-dialog .project-technologies li { border:1px solid var(--color-border); border-radius:5px; padding:3px 9px; font-size:14px; }
+#project-dialog figure { margin:24px 0; } #project-dialog img { width:100%; height:auto; border-radius:8px; }
+#project-dialog figcaption { color:var(--color-muted); font-size:13px; }
+#project-dialog nav { display:flex; flex-wrap:wrap; gap:16px; margin-top:28px; } #project-dialog nav a { min-height:44px; display:inline-flex; align-items:center; gap:6px; }
+@keyframes project-open { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+:root[data-motion='reduce'] #project-dialog[open] { animation:none; }
+@media(max-width:767px) { #project-dialog { padding:20px; } }
 </style>
