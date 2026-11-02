@@ -2,11 +2,15 @@
 
 A responsive Astro + TypeScript portfolio in progress. Professional content is based on the supplied CV; each homepage section is an independent Astro component. Guestbook UI has its own route at `/guestbook/`. `/playground/` holds a small interactive water-lines experiment (`src/scripts/playground-water.ts`): sliders, click/tap ripples, Pause/Play and Reset; it starts on load only when animation is on, stops while hidden or off screen, and is linked from the footer and the command palette, not the navbar.
 
+## Vercel deployment
+
+See [deployment guide](docs/deployment.md) for the production environment gate, shared rate limiting, preview isolation, custom domain setup, acceptance checks and rollback. The canonical production origin is https://rasyadwaarsya.my.id.
+
 ## Run locally
 
 Requires Node.js and npm to install dependencies. The project includes Node 22.23.4 locally for Astro; npm scripts use that local runtime without changing your global Node installation.
 
-This Windows checkout sets npm's script shell to `cmd.exe` in `.npmrc` so the local Node executable also works when your global npm configuration uses Git Bash. On Linux/macOS, remove that setting before running npm scripts.
+The project uses the operating system default script shell on Windows and Vercel/Linux.
 
 1. `npm ci`
 2. `npm run dev`
@@ -27,9 +31,11 @@ This Windows checkout sets npm's script shell to `cmd.exe` in `.npmrc` so the lo
 
 See [the blueprint](docs/blueprint.md) for structure, design decisions, and the next vertical passes. Browser QA artifacts live in ignored `output/playwright/`.
 
-Astro 7 prerenders every page to static HTML. The only server code is the contact, guestbook and now-playing endpoints (see [Contact form](#contact-form), [Guestbook](#guestbook) and [Music widget](#music-widget-spotify)), which run through the Node adapter. Small client scripts handle navigation/preferences, the contact dialog, the guestbook, and contribution-calendar positioning. No CMS, framework renderer, or animation package is used.
+Astro 7 prerenders every page to static HTML. The only server code is the contact, guestbook and now-playing endpoints (see [Contact form](#contact-form), [Guestbook](#guestbook) and [Music widget](#music-widget-spotify)), which run through the Vercel adapter. Small client scripts handle navigation/preferences, the contact dialog, the guestbook, and contribution-calendar positioning. No CMS, framework renderer, or animation package is used.
 
 ## Off the Clock
+
+Temporarily hidden from the homepage and command palette while personal content is being prepared. Implementation and collection data are preserved.
 
 The homepage includes an asymmetric photo gallery with an in-page lightbox, equal-width Games and Books collections, filterable collection dialogs, personal cover notes, and a compact Last visited postcard. Current contents are labelled demo examples. See [the content guide](docs/off-the-clock.md) to replace them with personal photos and collections. UI labels follow the language setting; personal titles and notes retain their original text.
 
@@ -73,9 +79,11 @@ The background uses the actual World and AsciiRenderer from [stackedlol/ascii-sh
 - **Turning it off.** Set `ASCII_BACKGROUND_ENABLED = false` in BaseLayout.astro.
 ## Contact form
 
-"Get in touch" (hero) and "Email me" (Contact) open one native `<dialog>` (`src/components/ui/ContactDialog.astro`). Without JavaScript both stay `mailto:` links. The dialog posts JSON to `POST /api/contact` (`src/pages/api/contact.ts`, the only on-demand route; every page is still prerendered). The handler in `src/server/contact.ts` checks same-origin, JSON content type, a 16 KiB body cap, a honeypot field and the fields (name 1–80, email ≤254, message 1–2000), then sends a plain-text email through the Resend REST API. The recipient comes only from server config; the visitor's address is the Reply-To. The UI reports success only when Resend returns 2xx with a message id, and it says the mail service accepted the message, not that it arrived. Message bodies and email addresses are never logged.
+"Get in touch" (hero) and "Email me" (Contact) open one native `<dialog>` (`src/components/ui/ContactDialog.astro`). Without JavaScript both stay `mailto:` links. The dialog posts JSON to `POST /api/contact/` (`src/pages/api/contact.ts`, one of the on-demand API routes; public pages are prerendered). The handler in `src/server/contact.ts` checks same-origin, JSON content type, a 16 KiB body cap, a honeypot field and the fields (name 1–80, email ≤254, message 1–2000), then sends a plain-text email through the Resend REST API. The recipient comes only from server config; the visitor's address is the Reply-To. The UI reports success only when Resend returns 2xx with a message id, and it says the mail service accepted the message, not that it arrived. Message bodies and email addresses are never logged.
 
-Rate limit: 3 messages per client address per 10 minutes, kept in process memory. This is best-effort: it holds on one long-lived Node server, but resets on restart and is per-instance on serverless hosts.
+Rate limit: 3 messages per client address per endpoint per 10 minutes. Hosted Vercel functions use atomic shared Turso buckets and fail closed when the store is unavailable. Local development uses bounded process memory. See [deployment guide](docs/deployment.md). Shared request guards cap streamed JSON bodies without trusting Content-Length.
+
+The browser uses a 20-second deadline covering response headers and JSON. A disconnected or timed-out request is reported as unconfirmed delivery, preserving the draft. Retries of an unchanged draft reuse an in-memory UUID; an edited draft or “Write another message” creates a new one. The server validates that UUID and scopes the provider's `Idempotency-Key` to a SHA-256 digest of the exact normalized mail payload, including its server-owned recipient. Resend replays matching requests for [24 hours](https://resend.com/docs/dashboard/emails/idempotency-keys); no automatic retries or permanent deduplication are promised. The key and draft are not stored in localStorage. A provider conflict for an attempt still in progress is explained as pending rather than a definite failure. Older clients without a key remain supported.
 
 Server environment variables (read at runtime via `astro:env`, never sent to the browser; set them in the host's environment, not in the repository):
 
@@ -89,11 +97,11 @@ Resend's `onboarding@resend.dev` sender only delivers to the address that owns t
 
 Local run with delivery: set the variable in the shell for that process only, e.g. PowerShell `$env:RESEND_API_KEY = 're_…'; npm run dev`. `npm run build` writes `dist/client/` (static files) and `dist/server/entry.mjs`; serve both with `npm run preview` or `node dist/server/entry.mjs` (`HOST`/`PORT` set the address). Tests: `npm test` (vitest, mocked provider, no network).
 
-Hosting: the site uses `@astrojs/node` in standalone mode, so any Node host works. To move to Vercel, Netlify or Cloudflare, replace the `adapter` line in `astro.config.mjs` with that platform's adapter; the handler uses only `Request`, `Response` and `fetch`. The in-memory rate limit is weaker there (see above).
+Hosting: the project uses `@astrojs/vercel` with prerendered public pages and Node 22 server functions. See [deployment guide](docs/deployment.md) for the shared database limiter, environment gates and domain setup.
 
 ## Guestbook
 
-`/guestbook/` stays a prerendered page. It loads notes from `GET /api/guestbook` (approved notes only, newest first, 20 per page with a cursor and "Load more") and posts the anonymous form (optional name ≤80, optional http/https website ≤200, message 1–1000) to `POST /api/guestbook`. The handler (`src/server/guestbook.ts`) reuses the contact guards in `src/server/http.ts` (same-origin, JSON only, size cap, honeypot, 3 notes per client per 10 minutes in memory). New notes are stored as `pending` and answer `202`; only approved notes are public. Notes are rendered as plain text and website links get `rel="ugc nofollow noopener noreferrer"`. No IP address, user agent or email is stored. GitHub sign-in is shown as disabled ("later").
+`/guestbook/` stays a prerendered page. It loads notes from `GET /api/guestbook/` (approved notes only, newest first, 20 per page with a cursor and "Load more") and posts the anonymous form (optional name ≤80, optional http/https website ≤200, message 1–1000) to `POST /api/guestbook/`. The handler (`src/server/guestbook.ts`) reuses the contact guards in `src/server/http.ts` (same-origin, JSON only, size cap, honeypot, 3 notes per client per 10 minutes in memory). New notes are stored as `pending` and answer `202`; only approved notes are public. Notes are rendered as plain text and website links get `rel="ugc nofollow noopener noreferrer"`. No IP address, user agent or email is stored. GitHub sign-in is shown as disabled ("later").
 
 Storage is libSQL (`@libsql/client`); the table is created on first use.
 
@@ -115,7 +123,7 @@ npm run guestbook:moderate -- delete <id>
 
 ## Music widget (Spotify)
 
-The footer shows what the owner is playing, or the last played track with a relative time. It reads `GET /api/now-playing` (`src/pages/api/now-playing.ts` + `src/server/now-playing.ts`), caches the response for 30 s (`Cache-Control: public, s-maxage=30, stale-while-revalidate=60`), and returns only track, artist and album names, the provider's own links and the artwork URL. The widget loads when the footer comes near the viewport and refreshes about every 60 s while the tab is visible, attributing the track to its source ("on Spotify" or "via Last.fm"). Without credentials the API answers `503 not_configured` and the widget says listening activity is unavailable; upstream errors give `502`. No audio is played.
+The footer shows what the owner is playing, or the last played track with a relative time. It reads `GET /api/now-playing/` (`src/pages/api/now-playing.ts` + `src/server/now-playing.ts`), caches the response for 30 s (`Cache-Control: public, s-maxage=30, stale-while-revalidate=60`), and returns only track, artist and album names, the provider's own links and the artwork URL. The widget loads when the footer comes near the viewport and refreshes about every 60 s while the tab is visible, attributing the track to its source ("on Spotify" or "via Last.fm"). A 20-second deadline covers headers and the JSON body; visibility changes do not overlap pending requests. Guestbook list reads use the same deadline helper with a 15-second limit and recover through the existing retry button. Without credentials the API answers `503 not_configured` and the widget says listening activity is unavailable; upstream errors give `502`. No audio is played.
 
 Two providers are supported. **Last.fm takes precedence over Spotify when both are configured** — use it when the owner has no Spotify Premium, since Spotify's Web API returns `403 Active premium subscription required for the owner of the app` for Development Mode apps without Premium. Selection resolves once per process: Last.fm when `LASTFM_API_KEY` + `LASTFM_USERNAME` are set, else Spotify when all three `SPOTIFY_*` vars are set, else `not_configured`.
 
@@ -158,5 +166,5 @@ The homepage renders real contribution data from `src/data/github-contributions.
 - Open source, Notes, and Off the clock are deferred and excluded from the homepage. Their components are retained for later.
 - The music widget shows real listening data once a provider is configured — Last.fm (`LASTFM_API_KEY` + `LASTFM_USERNAME`, preferred) or Spotify (the three `SPOTIFY_*` vars), see [Music widget](#music-widget-spotify). The résumé is the PDF supplied by the owner, pending a later update.
 - Favicon PNG/ICO sizes are derived from the owner's supplied portrait. GitHub/source/Credly links use the owner's supplied public URLs.
-- Site remains local-only with `noindex, nofollow`. Pushing source to GitHub does not deploy the site.
+- Local and preview builds remain `noindex, nofollow`; only Vercel Production builds enable indexing. Pushing source to GitHub does not itself prove a deployment is live.
 - Link previews: each page has its title and description plus Open Graph `og:type`, `og:site_name`, `og:title`, `og:description` and `twitter:card=summary`. They contain no absolute URL; `og:url`, a canonical link and `og:image` wait for a production domain.

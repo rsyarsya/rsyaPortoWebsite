@@ -10,12 +10,12 @@ const groups = [
 ---
 <footer>
   <div class="footer-top">
-    <div class="signature"><span>Portfolio</span><span class="metadata">Data, AI, cloud &amp; IoT.</span></div>
+    <div class="signature"><a class="instagram-handle" href="https://www.instagram.com/rasyadwarsya93_/" target="_blank" rel="noopener noreferrer" translate="no">@rasyadwarsya93_</a><span class="metadata">© {new Date().getFullYear()} <span translate="no">{profile.name}</span>.</span></div>
     <!-- Static (no-JS) state is neutral; src/scripts/now-playing.ts fills in real Spotify data. -->
-    <div class="listening" role="group" aria-label="Listening on Spotify" data-now-playing data-state="static">
+    <div class="listening" role="group" aria-label="Listening activity" data-now-playing data-state="static">
       <div class="album" data-np-art><span class="disc" aria-hidden="true"></span></div>
       <div class="np-text">
-        <span class="metadata np-line" data-np-label>Spotify</span>
+        <span class="metadata np-line" data-np-label>Music</span>
         <p class="np-line" data-np-title>Listening activity</p>
         <span class="metadata np-line" data-np-sub>Shown when JavaScript is on</span>
       </div>
@@ -24,7 +24,7 @@ const groups = [
   <div class="groups">
     {groups.map(group => <div><h2>{group.title}</h2><ul>{group.links.map(link => <li><PortfolioLink {...link} /></li>)}</ul></div>)}
   </div>
-  <p class="footer-note">© 2026. Built with Astro.</p>
+  <p class="footer-note"><span>Built with Astro.</span><br /><span>Design inspired by</span> <a href="https://rimzzlabs.com/" target="_blank" rel="noopener noreferrer" translate="no">Rimzz</a>.</p>
 </footer>
 <script>
   import '../../scripts/now-playing';
@@ -33,7 +33,8 @@ const groups = [
   footer { border-top: 1px solid var(--color-border); padding-block: 40px 32px; }
   .footer-top { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 40px; }
   .signature { display: flex; flex-direction: column; gap: 2px; }
-  .signature > span:first-child { font-weight: 600; }
+  .instagram-handle { font-weight: 600; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .instagram-handle:hover { text-decoration: underline; }
   /* Fixed width and single-line rows keep the widget's box constant across states (no layout shift). */
   .listening { display: flex; align-items: center; gap: 12px; width: 300px; max-width: 100%; font-size: 15px; line-height: 1.35; }
   .listening .metadata { font-size: 13px; }

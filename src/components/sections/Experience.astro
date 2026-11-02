@@ -8,11 +8,9 @@ import { experience } from '../../data/portfolio';
     {experience.map(item => <li class="list-row">
       <div class="row-heading"><h3>{item.organization}</h3><span class="metadata">{item.period}</span></div>
       <p class="role">{item.role}</p>
-      <p class="description">{item.description}</p>
     </li>)}
   </ul>
 </section>
 <style>
   .role { margin-top: 3px; font-size: 15px; }
-  .description { color: var(--color-muted); margin-top: 6px; }
 </style>

@@ -12,7 +12,9 @@ import { profile } from '../data/profile';
 // Margin-only ASCII water background. Set to false to ship without it (no markup, no script).
 const ASCII_BACKGROUND_ENABLED = true;
 
-// Link previews reuse title/description. og:url, canonical and og:image need an absolute URL, so they wait for a production domain.
+import { canonicalUrl, isProductionSite } from '../lib/site';
+const canonical = canonicalUrl(Astro.url.pathname);
+const indexable = isProductionSite(import.meta.env.VERCEL_ENV, import.meta.env.PUBLIC_SITE_INDEXABLE);
 interface Props { title?: string; description?: string; }
 const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Information Technology student at Universitas Gadjah Mada focused on data, AI, cloud, and IoT. Seeking a six-month internship starting January 2027.' } = Astro.props;
 ---
@@ -22,12 +24,18 @@ const { title = 'Rasyadwa Arsya — Data, AI, Cloud & IoT', description = 'Infor
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content={indexable ? 'index, follow' : 'noindex, nofollow'} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={canonicalUrl('/social-card.png')} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Rasyadwa Arsya — Data, AI, Cloud & IoT" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={profile.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <script is:inline set:html={preferencesInit} />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />

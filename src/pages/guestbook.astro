@@ -1,4 +1,5 @@
 ---
+import { CONTACT_FORM_ENABLED } from '../lib/contact-mode';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/layout/Container.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
@@ -19,7 +20,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
         <p id="signing-status" class="requires-script">Name and website are optional. Notes appear here after approval.</p>
         <p id="github-status" class="note">GitHub sign-in is not available yet.</p>
         <noscript><p class="note">Reading and signing the guestbook needs JavaScript.</p></noscript>
-        <form id="anonymous-form" method="post" action="/api/guestbook" novalidate hidden>
+        <form id="anonymous-form" method="post" action="/api/guestbook/" novalidate hidden>
           <div class="form-fields">
             <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" name="name" type="text" autocomplete="name" spellcheck="false" placeholder="Your name" maxlength="80" /></div>
             <div class="field">
@@ -51,10 +52,11 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     </main>
     <SiteFooter />
   </Container>
-  <ContactDialog />
+  {CONTACT_FORM_ENABLED && <ContactDialog />}
 </BaseLayout>
 <script>
   import { normalizeWebsite } from '../lib/website';
+  import { requestJson } from '../lib/request-json';
 
   type Entry = { id: string; name: string | null; website: string | null; message: string; created_at: string };
 
@@ -174,7 +176,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     let response: Response | null = null;
     let data: { code?: string; errors?: Record<string, string> } = {};
     try {
-      response = await fetch('/api/guestbook', {
+      response = await fetch('/api/guestbook/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ name: name.value, website: site.value, message: message.value, trap: trap?.value ?? '' }),
@@ -245,6 +247,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
   const template = document.querySelector<HTMLTemplateElement>('#entry-template');
   const dateFormat = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   let cursor: string | null = null;
+  let loadingEntries = false;
 
   function showState(kind: 'loading' | 'empty' | 'error' | 'unavailable' | null) {
     if (!state || !stateTitle || !stateDetail || !retry) return;
@@ -293,15 +296,16 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
   }
 
   async function loadEntries() {
-    if (!list || !loadMore) return;
+    if (!list || !loadMore || loadingEntries) return;
+    loadingEntries = true;
     const first = cursor === null;
     if (first) showState('loading');
     loadMore.disabled = true;
     loadMore.textContent = 'Loading…';
     section?.setAttribute('aria-busy', 'true');
     try {
-      const response = await fetch(`/api/guestbook${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, { headers: { Accept: 'application/json' } });
-      const data = await response.json().catch(() => ({})) as { code?: string; entries?: Entry[]; nextCursor?: string | null };
+      const { response, data: raw } = await requestJson(`/api/guestbook/${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, { headers: { Accept: 'application/json' } });
+      const data = raw as { code?: string; entries?: Entry[]; nextCursor?: string | null };
       if (response.status === 503 && data.code === 'not_configured') {
         showState('unavailable');
         markUnavailable();
@@ -326,6 +330,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
         loadMore.textContent = 'Could not load more. Try again';
       }
     } finally {
+      loadingEntries = false;
       loadMore.disabled = false;
       section?.setAttribute('aria-busy', 'false');
     }

@@ -1,10 +1,50 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
 import { highlights } from '../../data/portfolio';
+const featured = highlights.filter(item => item.featured).slice(0, 4);
+const groups = [
+  { title: 'Honors & competitions', category: 'honor' },
+  { title: 'Certifications & courses', category: 'certification' },
+];
 ---
 <section id="highlights" aria-labelledby="highlights-title">
   <SectionHeading id="highlights-title" title="Highlights" />
   <ul class="placeholder-list">
-    {highlights.map(item => <li class="placeholder-row"><h3>{item.title}</h3><span class="metadata">{item.context}</span></li>)}
+    {featured.map(item => <li class="placeholder-row"><h3>{item.title}</h3><span class="metadata">{item.context}</span></li>)}
   </ul>
+  <details class="highlights-more">
+    <summary data-highlights-open>View more <Icon name="arrow-up-right" /></summary>
+    <div data-highlights-archive>
+      {groups.map(group => <div class="highlight-group">
+        <h3>{group.title}</h3>
+        <ul>{highlights.filter(item => item.category === group.category).map(item => <li class="highlight-entry">
+          <div class="highlight-heading"><h4>{item.title}</h4><span class="metadata">{item.context}</span></div>
+        </li>)}</ul>
+      </div>)}
+    </div>
+  </details>
+  <dialog id="highlights-dialog" aria-labelledby="highlights-dialog-title" data-lenis-prevent>
+    <header><h2 id="highlights-dialog-title">All highlights</h2><button type="button" data-highlights-close aria-label="Close"><Icon name="close" /></button></header>
+    <div data-highlights-content></div>
+  </dialog>
 </section>
+<script>import '../../scripts/highlights';</script>
+<style>
+  summary { display: flex; align-items: center; gap: 8px; width: fit-content; min-height: 44px; margin-top: 12px; color: var(--color-accent); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  dialog { width: min(880px, calc(100% - 32px)); max-height: calc(100dvh - 40px); padding: 28px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--color-border); border-radius: 16px; color: var(--color-text); background: var(--color-bg); box-shadow: var(--shadow-panel); }
+  dialog::backdrop { background: rgb(12 17 14 / 72%); }
+  dialog[open] { animation: highlights-open 180ms ease-out; }
+  header { position: sticky; top: -28px; z-index: 1; background: var(--color-bg); padding-block: 12px; margin-top: -12px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+  header button { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--color-surface); color: inherit; cursor: pointer; }
+  .highlight-group + .highlight-group { margin-top: 32px; }
+  .highlight-group > h3 { font: 500 23px var(--font-serif); margin-bottom: 12px; }
+  .highlight-entry { padding-block: 18px; border-top: 1px solid var(--color-border); }
+  .highlight-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 24px; }
+  .highlight-heading h4 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.5; }
+  .highlight-heading .metadata { flex: none; }
+  :global(:root[data-motion='reduce']) dialog[open] { animation: none; }
+  @keyframes highlights-open { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 767px) { dialog { padding: 20px; } header { top: -20px; } .highlight-heading { flex-direction: column; gap: 3px; } }
+</style>
