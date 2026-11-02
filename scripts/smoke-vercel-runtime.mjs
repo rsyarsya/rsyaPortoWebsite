@@ -13,4 +13,3 @@ for(const [name,method,body,expected]of cases){const r=await app.fetch(new Reque
 const forbidden=await app.fetch(new Request('https://rasyadwaarsya.my.id/api/contact/',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://unrelated.example'},body:'{}'}));if(forbidden.status!==403)throw Error('Origin guard');
 if(externalRequests)throw new Error('An unconfigured endpoint attempted an external request');
 console.log('Built Vercel runtime passes missing-services, missing-IP, body-limit and origin checks. No external requests performed.');
-
