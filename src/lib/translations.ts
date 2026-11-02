@@ -1,6 +1,7 @@
 // Curated site copy. English is the source/default; personal names, technical
 // names, listening metadata and visitor-authored notes are never translated.
 const indonesia: Record<string, string> = {
+  'Music': 'Musik',
   'Off the Clock': 'Di Luar Kesibukan', 'Go to Off the Clock': 'Ke Di Luar Kesibukan',
   'A few things that stay with me beyond the screen.': 'Hal-hal yang menemani keseharian saya di luar layar.',
   'Design preview · Sample photos and collections, ready for my own.': 'Pratinjau desain · Foto dan koleksi contoh, siap diganti dengan milik saya.',

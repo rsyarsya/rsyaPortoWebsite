@@ -4,6 +4,7 @@
 // the Spotify source or www.last.fm for Last.fm). Data is rendered with
 // textContent/attributes only; an artist without a safe link renders as plain text.
 import { NO_ARTIST, attribution, parseNowPlaying, sourceName, type NowPlaying as Data, type Source, type Track } from '../lib/now-playing-view';
+import { requestJson } from '../lib/request-json';
 
 const REFRESH_MS = 60_000;
 const root = document.querySelector<HTMLElement>('[data-now-playing]');
@@ -33,6 +34,7 @@ if (root) {
   let lastFetch = 0;
   let stopped = false;
   let started = false;
+  let inFlight: Promise<void> | null = null;
 
   const link = (href: string, text: string) => {
     const a = document.createElement('a');
@@ -95,19 +97,19 @@ if (root) {
       root!.dataset.state = 'recent';
       showTrack(last.track, 'Recently played', last.source);
     } else if (last?.status === 'recent') render(last);
-    else showText('unavailable', sourceName(last?.source ?? 'spotify'), 'Listening activity unavailable');
+    else showText('unavailable', last ? sourceName(last.source) : 'Listening activity', 'Listening activity unavailable');
   }
 
-  async function refresh() {
+  async function load() {
     lastFetch = Date.now();
     try {
-      const res = await fetch('/api/now-playing', { headers: { Accept: 'application/json' } });
+      const { response: res, data: raw } = await requestJson('/api/now-playing', { headers: { Accept: 'application/json' } }, 20_000);
       if (res.status === 503) {
         stopped = true; // not configured: it will not change until the server restarts
         last = null;
         return fail();
       }
-      const data = res.ok ? parseNowPlaying(await res.json()) : null;
+      const data = res.ok ? parseNowPlaying(raw) : null;
       if (!data) return fail();
       last = data;
       render(data);
@@ -116,9 +118,14 @@ if (root) {
     }
   }
 
+  function refresh(): Promise<void> {
+    // Returning to the tab must not overlap a request whose response is slow.
+    return inFlight ??= load().finally(() => { inFlight = null; });
+  }
+
   function schedule() {
     clearTimeout(timer);
-    if (stopped || document.visibilityState !== 'visible') return;
+    if (stopped || inFlight || document.visibilityState !== 'visible') return;
     const wait = Math.max(0, REFRESH_MS - (Date.now() - lastFetch));
     timer = window.setTimeout(async () => {
       await refresh();
@@ -130,7 +137,7 @@ if (root) {
     if (started) schedule();
   });
 
-  showText('loading', 'Spotify', '', '');
+  showText('loading', 'Listening activity', '', '');
 
   const start = async () => {
     started = true;
