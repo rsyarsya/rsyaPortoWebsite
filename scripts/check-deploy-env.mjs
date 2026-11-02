@@ -13,6 +13,10 @@ export function deploymentProblems(env) {
   if (env.GUESTBOOK_DB_URL && !/^libsql:\/\//.test(env.GUESTBOOK_DB_URL)) problems.push('GUESTBOOK_DB_URL must use a remote libsql:// database');
   if (env.CONTACT_FROM_EMAIL && (!/@/.test(env.CONTACT_FROM_EMAIL) || /onboarding@resend\.dev/i.test(env.CONTACT_FROM_EMAIL))) problems.push('CONTACT_FROM_EMAIL must use your verified sending domain');
   if (env.RESEND_API_KEY && !env.RESEND_API_KEY.startsWith('re_')) problems.push('RESEND_API_KEY format is invalid');
+  if (env.PUBLIC_SITE_URL) {
+    try { const url = new URL(env.PUBLIC_SITE_URL); if (url.protocol !== 'https:' || url.origin !== env.PUBLIC_SITE_URL || url.username || url.password) throw new Error(); }
+    catch { problems.push('PUBLIC_SITE_URL must be an HTTPS origin without path or credentials'); }
+  }
   return problems;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel';
 // Pages stay prerendered (static). Only routes that set `prerender = false`
 // (src/pages/api/*) run on the server through the Vercel adapter.
 export default defineConfig({
-  site: 'https://rasyadwaarsya.my.id',
+  site: process.env.PUBLIC_SITE_URL || 'https://rasyadwaarsya.my.id',
   trailingSlash: 'always',
   output: 'static',
   adapter: vercel({ maxDuration: 30 }),

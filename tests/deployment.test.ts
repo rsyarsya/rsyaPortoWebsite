@@ -18,7 +18,8 @@ it('only indexes production and always canonicalizes to the owned apex domain', 
   for (const env of [undefined, 'development', 'preview']) expect(isProductionSite(env)).toBe(false);
   expect(isProductionSite('production')).toBe(true);
   expect(isProductionSite('production', 'false')).toBe(false);
-  expect(canonicalUrl('/guestbook/')).toBe('https://rasyadwaarsya.my.id/guestbook/');
+  expect(canonicalUrl('/social-card.png', 'https://rsya-portfolio.vercel.app')).toBe('https://rsya-portfolio.vercel.app/social-card.png');
+  expect(canonicalUrl('/guestbook/', 'https://rasyadwaarsya.my.id')).toBe('https://rasyadwaarsya.my.id/guestbook/');
 });
 it('rejects local or unauthenticated databases on hosted functions', () => {
   expect(databaseFactory('file:.data/guestbook.db', undefined, true)()).toBeNull();

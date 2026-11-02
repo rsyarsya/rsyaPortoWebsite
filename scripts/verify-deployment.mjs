@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 const production = process.argv.includes('--production');
 const out = '.vercel/output';
+const site = process.argv.find(arg => arg.startsWith('--site-url='))?.slice('--site-url='.length) || 'https://rasyadwaarsya.my.id';
 const read = path => readFileSync(join(out, path), 'utf8');
 const assert = (ok, label) => { if (!ok) throw new Error(label); };
 const card = readFileSync(join(out, 'static/social-card.png'));
@@ -12,12 +13,12 @@ assert(config.version === 3, 'Vercel Build Output API version');
 for (const path of ['index.html', 'guestbook/index.html', 'playground/index.html']) {
   const html = read('static/' + path);
   const pathname = path === 'index.html' ? '/' : '/' + path.replace('index.html', '');
-  assert(html.includes(`rel="canonical" href="https://rasyadwaarsya.my.id${pathname}"`), 'Canonical: ' + path);
+  assert(html.includes(`rel="canonical" href="${site}${pathname}"`), 'Canonical: ' + path);
   assert(html.includes(`name="robots" content="${production ? 'index, follow' : 'noindex, nofollow'}"`), 'Indexing: ' + path);
-  assert(html.includes('https://rasyadwaarsya.my.id/social-card.png'), 'Social metadata: ' + path);
+  assert(html.includes(site + '/social-card.png'), 'Social metadata: ' + path);
 }
 const robots = read('static/robots.txt'), sitemap = read('static/sitemap.xml');
-assert(production ? robots.includes('Disallow: /api/') && robots.includes('Sitemap: https://rasyadwaarsya.my.id/sitemap.xml') : robots.trim() === 'User-agent: *\nDisallow: /', 'Robots policy');
+assert(production ? robots.includes('Disallow: /api/') && robots.includes('Sitemap: ' + site + '/sitemap.xml') : robots.trim() === 'User-agent: *\nDisallow: /', 'Robots policy');
 assert((sitemap.match(/<loc>/g) ?? []).length === (production ? 3 : 0), 'Sitemap entries');
 const files = [];
 function scan(dir) { for (const item of readdirSync(dir, { withFileTypes: true })) { const p = join(dir, item.name); if (item.isDirectory()) scan(p); else files.push(p); } }

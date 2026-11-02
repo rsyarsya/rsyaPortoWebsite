@@ -15,9 +15,9 @@ Production origin: **https://rasyadwaarsya.my.id**. Add **www.rasyadwaarsya.my.i
 
 ## Initial Vercel-only release
 
-Set `PUBLIC_CONTACT_MODE=email-link` and `PUBLIC_SITE_INDEXABLE=false` for the first release while custom-domain/email verification is deferred. Contact actions become ordinary mailto links throughout the site and command palette, the unavailable form is not rendered, and the contact endpoint returns 503 without sending. Guestbook and music remain enabled. This explicit mode skips the mail-key/sender production requirement but retains database and shared-limiter requirements.
+Set `PUBLIC_SITE_URL=https://rsya-portfolio.vercel.app`, `PUBLIC_CONTACT_MODE=email-link` and `PUBLIC_SITE_INDEXABLE=false` for the first release while custom-domain/email verification is deferred. Contact actions become ordinary mailto links throughout the site and command palette, the unavailable form is not rendered, and the contact endpoint returns 503 without sending. Guestbook and music remain enabled. This explicit mode skips the mail-key/sender production requirement but retains database and shared-limiter requirements.
 
-Once Resend is verified, configure its sender/key and change `PUBLIC_CONTACT_MODE=form`. Once the custom domain is serving this deployment, set `PUBLIC_SITE_INDEXABLE=true`. Both flags require a rebuild/redeployment; secret values stay server-only. A Production bootstrap with indexing disabled uses the default (noindex) artifact verification command.
+Once Resend is verified, configure its sender/key and change `PUBLIC_CONTACT_MODE=form`. Once the custom domain is serving this deployment, set `PUBLIC_SITE_URL=https://rasyadwaarsya.my.id` and `PUBLIC_SITE_INDEXABLE=true`. Both flags require a rebuild/redeployment; secret values stay server-only. A Production bootstrap with indexing disabled uses `node scripts/verify-deployment.mjs --site-url=https://rsya-portfolio.vercel.app` (noindex policy).
 
 ## Server variables
 
