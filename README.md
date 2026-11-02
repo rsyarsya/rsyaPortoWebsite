@@ -29,6 +29,10 @@ See [the blueprint](docs/blueprint.md) for structure, design decisions, and the 
 
 Astro 7 prerenders every page to static HTML. The only server code is the contact, guestbook and now-playing endpoints (see [Contact form](#contact-form), [Guestbook](#guestbook) and [Music widget](#music-widget-spotify)), which run through the Node adapter. Small client scripts handle navigation/preferences, the contact dialog, the guestbook, and contribution-calendar positioning. No CMS, framework renderer, or animation package is used.
 
+## Off the Clock
+
+The homepage includes an asymmetric photo gallery with an in-page lightbox, equal-width Games and Books collections, filterable collection dialogs, personal cover notes, and a compact Last visited postcard. Current contents are labelled demo examples. See [the content guide](docs/off-the-clock.md) to replace them with personal photos and collections. UI labels follow the language setting; personal titles and notes retain their original text.
+
 ## Navigation and display preferences
 
 Desktop navigation blends into the page at the top, hides when scrolling down, and returns as a translucent capsule when scrolling up. Small changes under 8px are ignored; the initial top region is 64px. Mobile keeps the bottom icon dock with the same directional hiding. Gradient blur remains at viewport edges while content scrolls beneath it.
