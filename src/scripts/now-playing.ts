@@ -103,7 +103,7 @@ if (root) {
   async function load() {
     lastFetch = Date.now();
     try {
-      const { response: res, data: raw } = await requestJson('/api/now-playing', { headers: { Accept: 'application/json' } }, 20_000);
+      const { response: res, data: raw } = await requestJson('/api/now-playing/', { headers: { Accept: 'application/json' } }, 20_000);
       if (res.status === 503) {
         stopped = true; // not configured: it will not change until the server restarts
         last = null;

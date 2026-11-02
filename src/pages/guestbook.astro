@@ -19,7 +19,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
         <p id="signing-status" class="requires-script">Name and website are optional. Notes appear here after approval.</p>
         <p id="github-status" class="note">GitHub sign-in is not available yet.</p>
         <noscript><p class="note">Reading and signing the guestbook needs JavaScript.</p></noscript>
-        <form id="anonymous-form" method="post" action="/api/guestbook" novalidate hidden>
+        <form id="anonymous-form" method="post" action="/api/guestbook/" novalidate hidden>
           <div class="form-fields">
             <div class="field"><label for="guest-name">Name <span>(optional)</span></label><input id="guest-name" name="name" type="text" autocomplete="name" spellcheck="false" placeholder="Your name" maxlength="80" /></div>
             <div class="field">
@@ -175,7 +175,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     let response: Response | null = null;
     let data: { code?: string; errors?: Record<string, string> } = {};
     try {
-      response = await fetch('/api/guestbook', {
+      response = await fetch('/api/guestbook/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ name: name.value, website: site.value, message: message.value, trap: trap?.value ?? '' }),
@@ -303,7 +303,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     loadMore.textContent = 'Loading…';
     section?.setAttribute('aria-busy', 'true');
     try {
-      const { response, data: raw } = await requestJson(`/api/guestbook${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, { headers: { Accept: 'application/json' } });
+      const { response, data: raw } = await requestJson(`/api/guestbook/${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, { headers: { Accept: 'application/json' } });
       const data = raw as { code?: string; entries?: Entry[]; nextCursor?: string | null };
       if (response.status === 503 && data.code === 'not_configured') {
         showState('unavailable');

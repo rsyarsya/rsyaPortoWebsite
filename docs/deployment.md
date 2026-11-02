@@ -5,7 +5,8 @@ Production origin: **https://rasyadwaarsya.my.id**. Add **www.rasyadwaarsya.my.i
 ## Build and environments
 
 - Framework: Astro; install `npm ci`; build `npm run build`; Node 22.x. Dependencies include the compatible local Node 22.23.4 toolchain.
-- Astro uses `@astrojs/vercel`; pages are prerendered and `/api/contact`, `/api/guestbook`, `/api/now-playing` are server functions. `.vercel/output` is the deployment artifact.
+- Astro uses `@astrojs/vercel`; pages are prerendered and `/api/contact/`, `/api/guestbook/`, `/api/now-playing/` are server functions. `.vercel/output` is the deployment artifact.
+- `node scripts/smoke-vercel-runtime.mjs` runs the compiled function with no credentials and external requests disabled, checking missing configuration, missing proxy IP, body caps and origin rejection.
 - `node scripts/verify-deployment.mjs` verifies a built preview artifact; pass `--production` for a production artifact.
 - `npm run check`, `npm test`, `npm run build`, `npm audit`, then `npm run check:deploy` validate source, behavior, artifact, dependency audit, and production variable shape respectively. `check:deploy` reads only a local untracked `.env`.
 - A Vercel production build fails if required variables are missing or obviously unsuitable. This checks configuration shape, not provider validity.
