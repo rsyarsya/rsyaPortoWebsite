@@ -10,7 +10,7 @@ const groups = [
 ---
 <footer>
   <div class="footer-top">
-    <div class="signature"><span>Portfolio</span><span class="metadata">Data, AI, cloud &amp; IoT.</span></div>
+    <div class="signature"><span translate="no">{profile.name}</span><span class="metadata">Data, AI, cloud &amp; IoT.</span></div>
     <!-- Static (no-JS) state is neutral; src/scripts/now-playing.ts fills in real Spotify data. -->
     <div class="listening" role="group" aria-label="Listening activity" data-now-playing data-state="static">
       <div class="album" data-np-art><span class="disc" aria-hidden="true"></span></div>
@@ -24,7 +24,7 @@ const groups = [
   <div class="groups">
     {groups.map(group => <div><h2>{group.title}</h2><ul>{group.links.map(link => <li><PortfolioLink {...link} /></li>)}</ul></div>)}
   </div>
-  <p class="footer-note">© 2026. Built with Astro.</p>
+  <p class="footer-note"><span>© {new Date().getFullYear()} <span translate="no">{profile.name}</span>.</span> <span>Built with Astro.</span><br /><span>Design inspired by</span> <a href="https://rimzzlabs.com/" target="_blank" rel="noopener noreferrer" translate="no">Rimzz</a>.</p>
 </footer>
 <script>
   import '../../scripts/now-playing';

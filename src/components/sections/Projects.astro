@@ -3,8 +3,7 @@ import SectionHeading from '../ui/SectionHeading.astro';
 import { projects } from '../../data/portfolio';
 ---
 <section id="projects" aria-labelledby="projects-title">
-  <SectionHeading id="projects-title" title="Selected projects" />
-  <p class="section-description">A selection of work across connected systems, AI, simulation, and cloud.</p>
+  <SectionHeading id="projects-title" title="Featured projects" />
   <ul class="placeholder-list">
     {projects.map(project => <li class="list-row">
       <div class="row-heading"><h3>{project.name}</h3><span class="metadata">{project.role}</span></div>
