@@ -57,7 +57,7 @@ export function ensureSchema(db: Client) {
         name TEXT,
         website TEXT,
         message TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
         created_at TEXT NOT NULL
       )`,
       'CREATE INDEX IF NOT EXISTS guestbook_entries_status_created ON guestbook_entries (status, created_at DESC, id DESC)',
@@ -77,7 +77,7 @@ function storeError(error: unknown) {
   return json(500, { ok: false, code: 'store_error' });
 }
 
-/** GET: approved entries only, newest first, `?cursor=` pagination, 20 per page. */
+/** GET: published and legacy pending entries, newest first, `?cursor=` pagination, 20 per page. */
 export async function listEntries(request: Request, { db }: GuestbookOptions): Promise<Response> {
   if (!db) return json(503, { ok: false, code: 'not_configured' });
   const cursorParam = new URL(request.url).searchParams.get('cursor');
@@ -89,13 +89,13 @@ export async function listEntries(request: Request, { db }: GuestbookOptions): P
     const result = await db.execute(cursor
       ? {
           sql: `SELECT id, name, website, message, created_at FROM guestbook_entries
-                WHERE status = 'approved' AND (created_at < ? OR (created_at = ? AND id < ?))
+                WHERE status IN ('approved', 'pending') AND (created_at < ? OR (created_at = ? AND id < ?))
                 ORDER BY created_at DESC, id DESC LIMIT ?`,
           args: [cursor[1], cursor[1], cursor[2], PAGE_SIZE + 1],
         }
       : {
           sql: `SELECT id, name, website, message, created_at FROM guestbook_entries
-                WHERE status = 'approved' ORDER BY created_at DESC, id DESC LIMIT ?`,
+                WHERE status IN ('approved', 'pending') ORDER BY created_at DESC, id DESC LIMIT ?`,
           args: [PAGE_SIZE + 1],
         });
     const rows = result.rows.map(row => ({
@@ -108,14 +108,14 @@ export async function listEntries(request: Request, { db }: GuestbookOptions): P
     const entries = rows.slice(0, PAGE_SIZE);
     const last = entries.at(-1);
     const nextCursor = rows.length > PAGE_SIZE && last ? `${last.created_at}~${last.id}` : null;
-    // no-store (json default): an approval must show on the next reload; stale-while-revalidate would serve the old list first.
+    // Fresh requests show new notes without a stale cached list.
     return json(200, { ok: true, entries, nextCursor });
   } catch (error) {
     return storeError(error);
   }
 }
 
-/** POST: guarded, validated, stored as pending. 202 because it is not public until approved. */
+/** POST: guarded, validated and immediately published. */
 export async function createEntry(request: Request, { db, clientAddress = '', limiter, now = () => new Date() }: GuestbookOptions): Promise<Response> {
   const body = await readGuardedJson(request, MAX_BODY_BYTES);
   if (body instanceof Response) return body;
@@ -135,11 +135,11 @@ export async function createEntry(request: Request, { db, clientAddress = '', li
   try {
     await ensureSchema(db);
     await db.execute({
-      sql: `INSERT INTO guestbook_entries (id, name, website, message, status, created_at) VALUES (?, ?, ?, ?, 'pending', ?)`,
+      sql: `INSERT INTO guestbook_entries (id, name, website, message, status, created_at) VALUES (?, ?, ?, ?, 'approved', ?)`,
       args: [crypto.randomUUID(), name, website, message, now().toISOString()],
     });
   } catch (error) {
     return storeError(error);
   }
-  return json(202, { ok: true, status: 'pending' });
+  return json(201, { ok: true, status: 'published' });
 }

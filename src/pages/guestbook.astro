@@ -7,7 +7,7 @@ import SiteFooter from '../components/layout/SiteFooter.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactDialog from '../components/ui/ContactDialog.astro';
 ---
-<BaseLayout title="Guestbook — Rasyadwa Arsya" description="A little space to leave a note, say hello, or share your website. Notes appear after approval.">
+<BaseLayout title="Guestbook — Rasyadwa Arsya" description="A little space to leave a note, say hello, or share your website. Notes appear immediately.">
   <Container>
     <SiteHeader />
     <main id="main" tabindex="-1" class="guestbook-page">
@@ -17,7 +17,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
           <button type="button" class="anonymous requires-script" aria-expanded="false" aria-controls="anonymous-form"><Icon name="user" />Write anonymously</button>
           <button type="button" class="github-later" disabled aria-describedby="github-status"><Icon name="github" />GitHub sign-in (later)</button>
         </div>
-        <p id="signing-status" class="requires-script">Name and website are optional. Notes appear here after approval.</p>
+        <p id="signing-status" class="requires-script">Name and website are optional. Notes appear here immediately.</p>
         <p id="github-status" class="note">GitHub sign-in is not available yet.</p>
         <noscript><p class="note">Reading and signing the guestbook needs JavaScript.</p></noscript>
         <form id="anonymous-form" method="post" action="/api/guestbook/" novalidate hidden>
@@ -185,14 +185,17 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
     } catch { /* Network failure: handled below with the input kept. */ }
     setSending(false);
 
-    if (response?.status === 202) {
+    if (response?.status === 201) {
       form.reset();
       messageEdited = false;
       countLevel = 0;
       updateCount(false);
       setOpen(false);
-      if (status) status.textContent = 'Thanks! Your note was saved and is waiting for approval. It will appear here once it has been reviewed.';
+      if (status) status.textContent = 'Thanks! Your note has been published.';
       announce(status?.textContent ?? '');
+      cursor = null;
+      list?.replaceChildren();
+      await loadEntries();
       return;
     }
     // Every failure keeps what the visitor typed.
@@ -236,7 +239,7 @@ import ContactDialog from '../components/ui/ContactDialog.astro';
   // Tabbing through an untouched message is not an error; clearing a typed one is.
   message?.addEventListener('blur', () => { if (messageEdited) validate(message, messageError); });
 
-  // Entries: approved notes only, 20 per page, rendered with textContent (never as HTML).
+  // Entries: published notes, 20 per page, rendered with textContent (never as HTML).
   const section = document.querySelector<HTMLElement>('.entries');
   const list = document.querySelector<HTMLUListElement>('.entry-list');
   const state = document.querySelector<HTMLElement>('.entries-state');
