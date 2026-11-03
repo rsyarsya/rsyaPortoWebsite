@@ -42,7 +42,7 @@ Missing music credentials yield a neutral music state. Missing/invalid contact o
 
 ## Database and abuse protection
 
-Guestbook entries remain pending until approved. Both POST endpoints use an atomic fixed-window limiter in the same Turso database: 3 valid submissions per client address per endpoint per 10 minutes. HMAC keys prevent storing raw addresses; expired rows are deleted during limiter operations. Concurrent serverless instances share the same buckets. A store outage returns 503 and performs no mail/send or note write. Local dev uses the bounded in-process limiter.
+Guestbook entries publish immediately; legacy pending entries are also visible. Previously rejected entries stay hidden. Both POST endpoints use an atomic fixed-window limiter in the same Turso database: 3 valid submissions per client address per endpoint per 10 minutes. HMAC keys prevent storing raw addresses; expired rows are deleted during limiter operations. Concurrent serverless instances share the same buckets. A store outage returns 503 and performs no mail/send or note write. Local dev uses the bounded in-process limiter.
 
 The runtime lazily creates `request_limits` and its expiry index with the configured database credential, and creates the guestbook table on first use. Ensure the token allows those operations. Use a separate Preview database and secret; never test writes against real visitor data. Local tests use disposable SQLite databases and mocked mail.
 
@@ -52,7 +52,7 @@ Moderation remains local: load the intended database variables into the shell, t
 
 1. Deploy a preview from the verified branch, with isolated preview service credentials. Default Vercel deployment protection is preferred. A new Vercel project may require its first deployment to target Production; obtain owner approval for that bootstrap instead of silently promoting a preview. Custom-domain DNS can remain unchanged during bootstrap.
 2. Check homepage, guestbook, playground, resume, canonical/social card, robots and sitemap. Preview must remain noindex.
-3. Confirm contact rejection/validation and provider health. Send a real owner-controlled test message only with the owner's approval. Confirm guestbook persistence and moderation using a test database, not live messages.
+3. Confirm contact rejection/validation and provider health. Send a real owner-controlled test message only with the owner's approval. Confirm guestbook persistence and immediate visibility using a test database, not live messages.
 4. Recheck wheel/trackpad scrolling, Home/Work/Activity anchors, Back/Forward, navbar hide/reveal, contribution-calendar horizontal scrolling, modal scroll lock and unlock, theme/language switches, and reduced motion at desktop and mobile sizes.
 5. Check Safari/iOS and an Android device before public release; Chromium viewport emulation does not prove physical-device behavior.
 
