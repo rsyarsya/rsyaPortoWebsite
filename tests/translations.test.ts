@@ -9,8 +9,8 @@ describe('English and Indonesian site copy', () => {
   });
 
   it('localizes multi-line source paragraphs without requiring identical formatting', () => {
-    expect(translateText('Name and website are optional.\n   Notes appear here after approval.', 'id'))
-      .toBe('Nama dan situs web boleh dikosongkan. Pesan ditampilkan setelah disetujui.');
+    expect(translateText('Name and website are optional.\n   Notes appear here immediately.', 'id'))
+      .toBe('Nama dan situs web boleh dikosongkan. Pesan langsung ditampilkan.');
   });
 
   it('localizes live validation, counters and playback states', () => {

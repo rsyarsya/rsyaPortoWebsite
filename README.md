@@ -101,7 +101,7 @@ Hosting: the project uses `@astrojs/vercel` with prerendered public pages and No
 
 ## Guestbook
 
-`/guestbook/` stays a prerendered page. It loads notes from `GET /api/guestbook/` (approved notes only, newest first, 20 per page with a cursor and "Load more") and posts the anonymous form (optional name ≤80, optional http/https website ≤200, message 1–1000) to `POST /api/guestbook/`. The handler (`src/server/guestbook.ts`) reuses the contact guards in `src/server/http.ts` (same-origin, JSON only, size cap, honeypot, 3 notes per client per 10 minutes in memory). New notes are stored as `pending` and answer `202`; only approved notes are public. Notes are rendered as plain text and website links get `rel="ugc nofollow noopener noreferrer"`. No IP address, user agent or email is stored. GitHub sign-in is shown as disabled ("later").
+`/guestbook/` stays a prerendered page. It loads notes from `GET /api/guestbook/` (published and legacy pending notes, newest first, 20 per page with a cursor and "Load more") and posts the anonymous form (optional name ≤80, optional http/https website ≤200, message 1–1000) to `POST /api/guestbook/`. The handler (`src/server/guestbook.ts`) reuses the contact guards in `src/server/http.ts` (same-origin, JSON only, size cap, honeypot, 3 notes per client per 10 minutes in memory). New notes are stored as `approved` and answer `201`; they appear immediately, including legacy pending notes. No approval step is required. Notes are rendered as plain text and website links get `rel="ugc nofollow noopener noreferrer"`. No IP address, user agent or email is stored. GitHub sign-in is shown as disabled ("later").
 
 Storage is libSQL (`@libsql/client`); the table is created on first use.
 
